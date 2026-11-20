@@ -1,0 +1,4013 @@
+
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CHW MemoryX | Memory Forensics Workstation</title>
+  <style>
+    :root[data-theme="dark"] {
+      --bg-base: #080c14;
+      --bg-surface: #0f172a;
+      --bg-elevated: #1e293b;
+      --bg-card: #111c33;
+      --bg-hover: rgba(59, 130, 246, 0.09);
+      --border: #22324d;
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+      --text-muted: #64748b;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --primary-soft: rgba(59, 130, 246, 0.15);
+      --emerald: #10b981;
+      --emerald-soft: rgba(16, 185, 129, 0.15);
+      --amber: #f59e0b;
+      --amber-soft: rgba(245, 158, 11, 0.15);
+      --rose: #ef4444;
+      --rose-soft: rgba(239, 68, 68, 0.16);
+      --purple: #8b5cf6;
+      --purple-soft: rgba(139, 92, 246, 0.15);
+      --cyan: #06b6d4;
+      --cyan-soft: rgba(6, 182, 212, 0.15);
+      --shadow: 0 12px 30px -6px rgba(0, 0, 0, 0.55);
+      --code-bg: #050914;
+    }
+
+    :root[data-theme="light"] {
+      --bg-base: #f1f5f9;
+      --bg-surface: #ffffff;
+      --bg-elevated: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-hover: rgba(37, 99, 235, 0.06);
+      --border: #e2e8f0;
+      --text-main: #0f172a;
+      --text-sub: #475569;
+      --text-muted: #94a3b8;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-soft: rgba(37, 99, 235, 0.1);
+      --emerald: #059669;
+      --emerald-soft: rgba(5, 150, 105, 0.12);
+      --amber: #d97706;
+      --amber-soft: rgba(217, 119, 6, 0.12);
+      --rose: #dc2626;
+      --rose-soft: rgba(220, 38, 38, 0.12);
+      --purple: #7c3aed;
+      --purple-soft: rgba(124, 58, 237, 0.12);
+      --cyan: #0891b2;
+      --cyan-soft: rgba(8, 145, 178, 0.12);
+      --shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
+      --code-bg: #f1f5f9;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+      background: var(--bg-base);
+      color: var(--text-main);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      font-size: 13px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+      flex-shrink: 0;
+    }
+
+    /* TOP NAVIGATION BAR */
+    .topbar {
+      height: 58px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      flex-shrink: 0;
+      z-index: 40;
+      gap: 12px;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .company-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .company-logo {
+      height: 34px;
+      width: auto;
+      max-width: 110px;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    }
+
+    .brand-text { display: flex; flex-direction: column; }
+    .brand-title { font-weight: 800; font-size: 15px; letter-spacing: 0.4px; color: var(--text-main); }
+    .brand-sub { font-size: 10.5px; color: var(--text-sub); letter-spacing: 0.2px; }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: nowrap;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 11px;
+      border-radius: 8px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+    .pill strong { color: var(--text-main); font-weight: 600; max-width: 165px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .case-select {
+      background: transparent;
+      border: none;
+      color: var(--text-main);
+      font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+      outline: none;
+      max-width: 170px;
+    }
+    .case-select option { background: var(--bg-surface); color: var(--text-main); }
+
+    .icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 35px;
+      height: 35px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .icon-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+    /* WORKSPACE BODY */
+    .workspace {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* COLLAPSIBLE SIDEBAR */
+    .sidebar {
+      width: 240px;
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 10px 8px;
+      gap: 2px;
+      transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      flex-shrink: 0;
+    }
+
+    .sidebar.collapsed { width: 62px; padding: 10px 6px; }
+    .sidebar.collapsed .nav-text,
+    .sidebar.collapsed .nav-group-title { display: none; }
+    .sidebar.collapsed .nav-btn { justify-content: center; padding: 10px 0; }
+
+    .nav-group-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      padding: 11px 10px 3px;
+      white-space: nowrap;
+    }
+
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      width: 100%;
+      padding: 8.5px 11px;
+      border-radius: 7px;
+      border: none;
+      background: transparent;
+      color: var(--text-sub);
+      font-size: 12.5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.14s ease;
+      white-space: nowrap;
+      text-align: left;
+    }
+    .nav-btn:hover { background: var(--bg-hover); color: var(--text-main); }
+    .nav-btn.active {
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-weight: 600;
+      border-left: 3px solid var(--primary);
+    }
+
+    /* FLOATING SIDEBAR TOOLTIP */
+    .sidebar-tooltip {
+      position: fixed;
+      z-index: 600;
+      pointer-events: none;
+      background: var(--bg-elevated);
+      color: var(--text-main);
+      border: 1px solid var(--primary);
+      box-shadow: var(--shadow);
+      padding: 6px 11px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+      opacity: 0;
+      transform: translateX(-4px);
+      transition: opacity 0.12s ease, transform 0.12s ease;
+    }
+    .sidebar-tooltip.visible { opacity: 1; transform: translateX(0); }
+    .sidebar-tooltip::before {
+      content: "";
+      position: absolute;
+      left: -5px;
+      top: 50%;
+      transform: translateY(-50%) rotate(45deg);
+      width: 8px;
+      height: 8px;
+      background: var(--bg-elevated);
+      border-left: 1px solid var(--primary);
+      border-bottom: 1px solid var(--primary);
+    }
+
+    /* MAIN VIEWPORT */
+    .main-viewport {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .content-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 22px 26px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .view-pane { display: none; animation: fadeIn 0.15s ease; }
+    .view-pane.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(2px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .pane-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .pane-title h1 { font-size: 19px; font-weight: 700; }
+    .pane-title p { color: var(--text-sub); font-size: 12px; margin-top: 2px; }
+
+    /* METRIC CARDS & GAUGES */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .metric-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 15px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .metric-info { min-width: 0; }
+    .metric-info span { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-sub); }
+    .metric-info h3 { font-size: 19px; font-weight: 700; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .metric-info small { display: block; font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .metric-icon-box {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      background: var(--primary-soft);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 18px;
+      margin-bottom: 16px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      font-weight: 600;
+      font-size: 13.5px;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* TARGET DUMP TELEMETRY GAUGES */
+    .gauge-container { display: flex; flex-direction: column; gap: 14px; }
+    .gauge-row { display: flex; flex-direction: column; gap: 5px; }
+    .gauge-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-sub); gap: 8px; }
+    .gauge-sub { font-size: 11px; color: var(--text-muted); }
+    .gauge-track { width: 100%; height: 10px; background: var(--bg-elevated); border-radius: 5px; overflow: hidden; }
+    .gauge-bar { height: 100%; background: linear-gradient(90deg, var(--primary), #60a5fa); width: 0%; transition: width 0.35s ease; }
+
+    /* OS-SPECIFIC SMART PLUGIN CARDS */
+    .plugin-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 13px;
+      margin-bottom: 18px;
+    }
+
+    .plugin-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+      transition: border-color 0.15s ease;
+    }
+    .plugin-card:hover { border-color: var(--primary); }
+    .plugin-card.saved {
+      border-color: rgba(16, 185, 129, 0.45);
+      background: linear-gradient(180deg, rgba(16, 185, 129, 0.04) 0%, var(--bg-card) 100%);
+    }
+
+    .plugin-title { font-family: "JetBrains Mono", Consolas, monospace; font-size: 13px; font-weight: 700; color: var(--text-main); }
+    .plugin-desc { font-size: 11.5px; color: var(--text-sub); line-height: 1.4; margin-top: 4px; }
+
+    /* BUTTONS & BADGES */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 7px 13px;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+      text-decoration: none;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-emerald { background: var(--emerald); color: #fff; }
+    .btn-emerald:hover { background: #059669; }
+    .btn-purple { background: var(--purple); color: #fff; }
+    .btn-purple:hover { background: #7c3aed; }
+    .btn-amber { background: var(--amber); color: #0f172a; }
+    .btn-amber:hover { background: #d97706; color: #fff; }
+    .btn-secondary { background: var(--bg-elevated); color: var(--text-main); border-color: var(--border); }
+    .btn-secondary:hover { border-color: var(--primary); color: var(--primary); }
+    .btn-secondary.active-toggle { background: var(--rose-soft); color: var(--rose); border-color: var(--rose); }
+    .btn-danger { background: var(--rose-soft); color: var(--rose); border-color: rgba(239, 68, 68, 0.3); }
+    .btn-danger:hover { background: var(--rose); color: #fff; }
+    .btn-sm { padding: 5px 10px; font-size: 11.5px; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge-emerald { background: var(--emerald-soft); color: var(--emerald); }
+    .badge-primary { background: var(--primary-soft); color: var(--primary); }
+    .badge-amber { background: var(--amber-soft); color: var(--amber); }
+    .badge-rose { background: var(--rose-soft); color: var(--rose); }
+    .badge-purple { background: var(--purple-soft); color: var(--purple); }
+    .badge-cyan { background: var(--cyan-soft); color: var(--cyan); }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--amber);
+      display: inline-block;
+      animation: pulse 1.2s infinite ease-in-out;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.75); }
+    }
+
+    /* STICKY-HEADER TABLES EVERYWHERE */
+    .table-container {
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: var(--bg-surface);
+      max-height: 460px;
+      position: relative;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      text-align: left;
+      font-size: 12px;
+    }
+    thead th {
+      background: var(--bg-elevated);
+      color: var(--text-sub);
+      font-weight: 600;
+      padding: 10px 12px;
+      position: sticky;
+      top: 0;
+      border-bottom: 1px solid var(--border);
+      box-shadow: inset 0 -1px 0 var(--border);
+      cursor: pointer;
+      white-space: nowrap;
+      z-index: 5;
+    }
+    tbody td {
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-main);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 11.5px;
+      white-space: nowrap;
+    }
+    tbody tr:hover td { background: var(--bg-hover); }
+
+    /* IOC / THREAT INTEL ROW HIGHLIGHTING */
+    tbody tr.ioc-crit td {
+      background: rgba(239, 68, 68, 0.09);
+    }
+    tbody tr.ioc-crit td:first-child {
+      border-left: 3px solid var(--rose);
+    }
+    tbody tr.ioc-warn td {
+      background: rgba(245, 158, 11, 0.07);
+    }
+    tbody tr.ioc-warn td:first-child {
+      border-left: 3px solid var(--amber);
+    }
+
+    /* CLICKABLE EXTERNAL IP CHIPS INSIDE TABLES */
+    .ip-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 2px 7px;
+      border-radius: 5px;
+      background: var(--cyan-soft);
+      border: 1px solid rgba(6, 182, 212, 0.45);
+      color: var(--cyan);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.14s ease;
+    }
+    .ip-chip:hover {
+      background: var(--cyan);
+      color: #06131c;
+      transform: translateY(-1px);
+    }
+    .ip-inline-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: 6px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-sub);
+      font-family: -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+      font-size: 10.5px;
+      font-weight: 600;
+    }
+
+    /* IOC SUMMARY BAR */
+    .ioc-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 10px 13px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      background: var(--bg-base);
+      border: 1px solid var(--border);
+      font-size: 12px;
+    }
+
+    /* VISUAL PROCESS TREE GRAPH */
+    .ptree-wrap {
+      background: var(--bg-base);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 14px 16px;
+      max-height: 540px;
+      overflow: auto;
+    }
+    .ptree-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .ptree-list {
+      list-style: none;
+      margin: 0;
+      padding-left: 22px;
+      position: relative;
+    }
+    .ptree-list.root-list { padding-left: 0; }
+    .ptree-item {
+      position: relative;
+      margin: 6px 0;
+    }
+    .ptree-list:not(.root-list) > .ptree-item::before {
+      content: "";
+      position: absolute;
+      left: -14px;
+      top: -8px;
+      bottom: -8px;
+      width: 1px;
+      background: var(--border);
+    }
+    .ptree-list:not(.root-list) > .ptree-item:last-child::before {
+      bottom: calc(100% - 19px);
+    }
+    .ptree-list:not(.root-list) > .ptree-item::after {
+      content: "";
+      position: absolute;
+      left: -14px;
+      top: 18px;
+      width: 14px;
+      height: 1px;
+      background: var(--border);
+    }
+    .ptree-node {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 7px 11px;
+      border-radius: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      transition: all 0.14s ease;
+      max-width: 100%;
+      flex-wrap: wrap;
+    }
+    .ptree-node:hover { border-color: var(--primary); }
+    .ptree-node.sev-crit {
+      border-color: var(--rose);
+      background: linear-gradient(90deg, rgba(239, 68, 68, 0.16) 0%, var(--bg-card) 100%);
+      box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.25);
+    }
+    .ptree-node.sev-warn {
+      border-color: var(--amber);
+      background: linear-gradient(90deg, rgba(245, 158, 11, 0.13) 0%, var(--bg-card) 100%);
+    }
+    .ptree-node.sev-sys {
+      border-color: rgba(59, 130, 246, 0.45);
+    }
+    .ptree-toggle {
+      width: 20px;
+      height: 20px;
+      border-radius: 5px;
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text-main);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .ptree-toggle.leaf { opacity: 0.35; cursor: default; }
+    .ptree-name {
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-weight: 700;
+      font-size: 12.5px;
+      color: var(--text-main);
+    }
+    .ptree-meta {
+      font-size: 11px;
+      color: var(--text-sub);
+      font-family: "JetBrains Mono", Consolas, monospace;
+    }
+
+    /* FORMS */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 11px;
+      margin-bottom: 10px;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+    .form-group label { font-size: 11.5px; font-weight: 600; color: var(--text-sub); }
+    input[type="text"], input[type="number"], select, textarea {
+      background: var(--bg-base);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 8px 11px;
+      border-radius: 7px;
+      font-size: 12.5px;
+      font-family: inherit;
+    }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); }
+
+    .dropzone {
+      border: 2px dashed var(--border);
+      border-radius: 9px;
+      padding: 24px 18px;
+      text-align: center;
+      cursor: pointer;
+      background: var(--bg-base);
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .dropzone:hover, .dropzone.dragover { border-color: var(--primary); background: var(--primary-soft); }
+
+    /* INLINE FULL STRUCTURED TABLE VIEWER */
+    .structured-workspace {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 18px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .viewer-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* IP INTELLIGENCE POP-UP MODAL */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      z-index: 300;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+    .modal-backdrop.open { display: flex; }
+
+    .ip-modal {
+      width: 600px;
+      max-width: 96vw;
+      max-height: 90vh;
+      background: var(--bg-surface);
+      border: 1px solid var(--cyan);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: fadeIn 0.15s ease;
+    }
+    .ip-modal-header {
+      padding: 14px 18px;
+      background: var(--bg-elevated);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .ip-modal-body {
+      padding: 16px 18px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .ip-hero-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+    }
+    .ip-stat-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .ip-stat-box span { font-size: 10.5px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; display: block; }
+    .ip-stat-box strong { font-size: 13px; color: var(--text-main); margin-top: 3px; display: block; word-break: break-word; }
+
+    /* DRAWER BACKDROP & SLIDE-OVER DRAWERS */
+    .drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      z-index: 90;
+      display: none;
+    }
+    .drawer-backdrop.open { display: block; }
+
+    .ai-drawer {
+      position: fixed;
+      top: 0;
+      right: -560px;
+      width: 540px;
+      max-width: 96vw;
+      height: 100vh;
+      background: var(--bg-surface);
+      border-left: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      transition: right 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .ai-drawer.open { right: 0; }
+
+    .ai-drawer-header {
+      padding: 13px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-elevated);
+      gap: 8px;
+    }
+
+    .ai-chat-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .ai-msg { padding: 12px 14px; border-radius: 9px; font-size: 12.5px; line-height: 1.55; word-break: break-word; }
+    .ai-msg.user {
+      background: var(--primary-soft);
+      border: 1px solid rgba(59, 130, 246, 0.35);
+      color: var(--text-main);
+      align-self: flex-end;
+      max-width: 88%;
+      white-space: pre-wrap;
+    }
+    .ai-msg.assistant {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      align-self: flex-start;
+      max-width: 98%;
+    }
+
+    /* RICH MARKDOWN RENDERING INSIDE AI MESSAGES */
+    .ai-msg.assistant h1, .ai-msg.assistant h2, .ai-msg.assistant h3, .ai-msg.assistant h4 {
+      margin: 10px 0 6px; font-weight: 700; color: var(--text-main); line-height: 1.3;
+    }
+    .ai-msg.assistant h1 { font-size: 15px; }
+    .ai-msg.assistant h2 { font-size: 14px; }
+    .ai-msg.assistant h3 { font-size: 13px; color: var(--primary); }
+    .ai-msg.assistant p { margin: 6px 0; }
+    .ai-msg.assistant p:first-child { margin-top: 0; }
+    .ai-msg.assistant p:last-child { margin-bottom: 0; }
+    .ai-msg.assistant strong { color: var(--text-main); font-weight: 700; }
+    .ai-msg.assistant em { font-style: italic; color: var(--text-sub); }
+    .ai-msg.assistant ul, .ai-msg.assistant ol { margin: 6px 0 8px 18px; padding: 0; }
+    .ai-msg.assistant li { margin: 3px 0; }
+    .ai-msg.assistant code {
+      background: var(--code-bg); border: 1px solid var(--border); padding: 1px 5px;
+      border-radius: 4px; font-family: "JetBrains Mono", Consolas, monospace; font-size: 11.5px; color: #60a5fa;
+    }
+    .ai-msg.assistant pre {
+      background: var(--code-bg); border: 1px solid var(--border); border-radius: 7px;
+      padding: 10px 12px; margin: 8px 0; overflow-x: auto;
+    }
+    .ai-msg.assistant pre code { background: transparent; border: none; padding: 0; color: #e2e8f0; font-size: 11.5px; white-space: pre; }
+    .ai-msg.assistant blockquote {
+      border-left: 3px solid var(--primary); padding: 4px 10px; margin: 8px 0;
+      color: var(--text-sub); background: var(--bg-hover); border-radius: 0 6px 6px 0;
+    }
+    .ai-msg.assistant hr { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+    .ai-md-table-wrap { overflow-x: auto; margin: 8px 0; border: 1px solid var(--border); border-radius: 7px; }
+    .ai-md-table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+    .ai-md-table th {
+      background: var(--bg-elevated); color: var(--text-main); font-weight: 700; padding: 7px 10px;
+      border-bottom: 1px solid var(--border); position: static; cursor: default; white-space: nowrap;
+    }
+    .ai-md-table td { padding: 6px 10px; border-bottom: 1px solid var(--border); font-family: inherit; white-space: normal; font-size: 11.5px; }
+    .ai-md-table tr:last-child td { border-bottom: none; }
+
+    .ai-input-area {
+      padding: 13px 16px;
+      border-top: 1px solid var(--border);
+      background: var(--bg-elevated);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* COMMANDS DRAWER */
+    .cmd-drawer {
+      position: fixed;
+      top: 0;
+      right: -450px;
+      width: 430px;
+      max-width: 92vw;
+      height: 100vh;
+      background: var(--bg-surface);
+      border-left: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      transition: right 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .cmd-drawer.open { right: 0; }
+
+    .toast-stack {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 350;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .toast {
+      background: var(--bg-surface);
+      border-left: 4px solid var(--primary);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 10px 14px;
+      border-radius: 7px;
+      box-shadow: var(--shadow);
+      font-size: 12px;
+      max-width: 370px;
+    }
+
+    /* OFFICIAL PDF PRINT CONTAINER (HIDDEN ON SCREEN, CLEAN PAPER LAYOUT ON PRINT) */
+    #pdfPrintContainer { display: none; }
+
+    @media print {
+      @page { margin: 14mm; size: A4 portrait; }
+      html, body {
+        height: auto !important;
+        overflow: visible !important;
+        background: #ffffff !important;
+        color: #0f172a !important;
+        font-size: 11pt !important;
+      }
+      body > *:not(#pdfPrintContainer) { display: none !important; }
+      #pdfPrintContainer {
+        display: block !important;
+        background: #ffffff !important;
+        color: #0f172a !important;
+        font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      }
+      .pdf-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px solid #1d4ed8;
+        padding-bottom: 10px;
+        margin-bottom: 16px;
+      }
+      .pdf-title { font-size: 18pt; font-weight: 800; color: #0f172a; }
+      .pdf-sub { font-size: 9.5pt; color: #475569; margin-top: 2px; }
+      .pdf-section { margin-bottom: 16px; page-break-inside: avoid; }
+      .pdf-section h2 {
+        font-size: 12pt;
+        font-weight: 700;
+        color: #1d4ed8;
+        border-bottom: 1px solid #cbd5e1;
+        padding-bottom: 4px;
+        margin-bottom: 8px;
+      }
+      .pdf-kv-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px 14px;
+        font-size: 9.5pt;
+      }
+      .pdf-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 8.5pt;
+        margin-top: 6px;
+      }
+      .pdf-table th {
+        background: #f1f5f9 !important;
+        color: #0f172a !important;
+        border: 1px solid #cbd5e1;
+        padding: 5px 7px;
+        text-align: left;
+        position: static !important;
+      }
+      .pdf-table td {
+        border: 1px solid #cbd5e1;
+        padding: 5px 7px;
+        color: #0f172a !important;
+        font-family: Consolas, monospace;
+        white-space: normal !important;
+        word-break: break-all;
+      }
+      .pdf-footer {
+        margin-top: 22px;
+        border-top: 1px solid #cbd5e1;
+        padding-top: 8px;
+        font-size: 8.5pt;
+        color: #64748b;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP HEADER -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="icon-btn" onclick="toggleSidebar()" title="Collapse / Expand Sidebar">
+        <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+
+      <div class="company-brand" onclick="navigate('dashboard')">
+        <img src="https://iili.io/fU82tG2.png" alt="CHW MemoryX Logo" class="company-logo" onerror="this.style.display='none'" />
+        <div class="brand-text">
+          <span class="brand-title">CHW MemoryX</span>
+          <span class="brand-sub">Memory Forensics Workstation • Volatility 3</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="topbar-right">
+      <span class="badge badge-amber" id="headerJobsBadge" style="display:none;">
+        <span class="pulse-dot"></span>
+        <span id="headerJobsText">Analyzing...</span>
+      </span>
+
+      <div class="pill">
+        <svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        <span>Case:</span>
+        <select id="headerCaseSelect" class="case-select" onchange="switchCaseFromHeader(this.value)">
+          <option value="">-- Choose Case --</option>
+        </select>
+      </div>
+
+      <div class="pill" id="evidenceHeaderPill">
+        <svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+        <span>Dump:</span>
+        <strong id="headerEvidenceName">NONE</strong>
+        <span class="badge badge-primary" id="headerDetectedOsBadge">TARGET OS</span>
+      </div>
+
+      <button class="btn btn-primary btn-sm" onclick="toggleAiDrawer(true)" title="Open CHW MemoryX AI Assistant">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+        <span>CHW AI</span>
+      </button>
+
+      <button class="icon-btn" onclick="toggleCmdDrawer(true)" title="Custom Volatility Command Launcher">
+        <svg viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+      </button>
+
+      <button class="icon-btn" onclick="toggleTheme()" title="Switch Light / Dark Theme">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="workspace">
+    <!-- COLLAPSIBLE SIDEBAR WITH FLOATING HOVER TOOLTIPS -->
+    <aside class="sidebar" id="sidebar">
+      <div class="nav-group-title">Core Workspace</div>
+      <button class="nav-btn active" data-pane="dashboard" data-label="Dashboard" onclick="navigate('dashboard')">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span class="nav-text">Dashboard</span>
+      </button>
+      <button class="nav-btn" data-pane="cases" data-label="Case Manager" onclick="navigate('cases')">
+        <svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        <span class="nav-text">Case Manager</span>
+      </button>
+      <button class="nav-btn" data-pane="evidence" data-label="Evidence Manager" onclick="navigate('evidence')">
+        <svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+        <span class="nav-text">Evidence Manager</span>
+      </button>
+
+      <div class="nav-group-title">Forensic Modules</div>
+      <button class="nav-btn" data-pane="sysinfo" data-label="System Information" onclick="navigate('sysinfo')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <span class="nav-text">System Information</span>
+      </button>
+      <button class="nav-btn" data-pane="process" data-label="Process Analysis" onclick="navigate('process')">
+        <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/></svg>
+        <span class="nav-text">Process Analysis</span>
+      </button>
+      <button class="nav-btn" data-pane="network" data-label="Network & IP Intel" onclick="navigate('network')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <span class="nav-text">Network &amp; IP Intel</span>
+      </button>
+      <button class="nav-btn" data-pane="malware" data-label="Malware & VAD" onclick="navigate('malware')">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span class="nav-text">Malware &amp; VAD</span>
+      </button>
+      <button class="nav-btn" data-pane="memory" data-label="Memory Analysis" onclick="navigate('memory')">
+        <svg viewBox="0 0 24 24"><path d="M2 12h20M2 12l4-4m-4 4l4 4"/><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+        <span class="nav-text">Memory Analysis</span>
+      </button>
+      <button class="nav-btn" data-pane="dll" data-label="DLL & Modules" onclick="navigate('dll')">
+        <svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+        <span class="nav-text">DLL &amp; Modules</span>
+      </button>
+      <button class="nav-btn" data-pane="files" data-label="File Analysis" onclick="navigate('files')">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <span class="nav-text">File Analysis</span>
+      </button>
+      <button class="nav-btn" data-pane="registry" data-label="Registry Analysis" onclick="navigate('registry')">
+        <svg viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+        <span class="nav-text">Registry Analysis</span>
+      </button>
+      <button class="nav-btn" data-pane="browser" data-label="Browser Artifacts" onclick="navigate('browser')">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+        <span class="nav-text">Browser Artifacts</span>
+      </button>
+      <button class="nav-btn" data-pane="cmdline" data-label="Command Line" onclick="navigate('cmdline')">
+        <svg viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+        <span class="nav-text">Command Line</span>
+      </button>
+      <button class="nav-btn" data-pane="services" data-label="Services & Drivers" onclick="navigate('services')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9"/></svg>
+        <span class="nav-text">Services &amp; Drivers</span>
+      </button>
+
+      <div class="nav-group-title">Artifacts &amp; Records</div>
+      <button class="nav-btn" data-pane="explorer" data-label="Plugin Explorer" onclick="navigate('explorer')">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <span class="nav-text">Plugin Explorer</span>
+      </button>
+      <button class="nav-btn" data-pane="extraction" data-label="Extraction Center" onclick="navigate('extraction')">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span class="nav-text">Extraction Center</span>
+      </button>
+      <button class="nav-btn" data-pane="reports" data-label="Reports & Hashes" onclick="navigate('reports')">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <span class="nav-text">Reports &amp; Hashes</span>
+      </button>
+      <button class="nav-btn" data-pane="history" data-label="Saved Runs" onclick="navigate('history')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span class="nav-text">Saved Runs</span>
+      </button>
+    </aside>
+
+    <!-- MAIN VIEWPORT -->
+    <div class="main-viewport">
+      <div class="content-area">
+
+        <!-- 1. DASHBOARD — 100% TARGET MEMORY DUMP TELEMETRY -->
+        <section id="pane-dashboard" class="view-pane active">
+          <div class="pane-header">
+            <div class="pane-title">
+              <h1>Target Memory Dump Telemetry &amp; Dashboard</h1>
+              <p>Live forensic snapshot metrics extracted directly from the target RAM dump (OS, CPU load, physical RAM occupancy &amp; active processes).</p>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn btn-secondary btn-sm" onclick="reprobeActiveEvidenceOs()">Re-Probe Dump OS</button>
+              <button class="btn btn-primary btn-sm" onclick="syncEverything()">Refresh Telemetry</button>
+            </div>
+          </div>
+
+          <!-- TOP METRICS (TARGET DUMP ONLY) -->
+          <div class="metric-grid">
+            <div class="metric-card">
+              <div class="metric-info">
+                <span>Active Case</span>
+                <h3 id="dashCaseName">None</h3>
+                <small id="dashVerifiedSub">0 verified runs saved</small>
+              </div>
+              <div class="metric-icon-box"><svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-info">
+                <span>Target Dump OS</span>
+                <h3 id="dashDetectedOs">Waiting Image</h3>
+                <small id="dashTargetArch">Architecture: Unknown</small>
+              </div>
+              <div class="metric-icon-box" style="background:var(--emerald-soft); color:var(--emerald);"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-info">
+                <span>Target Dump RAM</span>
+                <h3 id="dashDumpRamSize">0 GB</h3>
+                <small id="dashDumpRamSub">0% Active Physical Pages</small>
+              </div>
+              <div class="metric-icon-box" style="background:var(--purple-soft); color:var(--purple);"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-info">
+                <span>Target Active Processes</span>
+                <h3 id="dashActiveProcs">0</h3>
+                <small id="dashThreadsSub">0 Threads • 0 Handles</small>
+              </div>
+              <div class="metric-icon-box" style="background:var(--amber-soft); color:var(--amber);"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+            </div>
+          </div>
+
+          <!-- TARGET DUMP CPU/RAM UTILIZATION + KERNEL DETAILS -->
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header">
+                <span>Target Memory Dump Snapshot Utilization</span>
+                <span class="badge badge-emerald" id="dashTargetOsBadge">No Dump</span>
+              </div>
+              <div class="gauge-container">
+                <div class="gauge-row">
+                  <div class="gauge-label">
+                    <span>Target CPU Activity Load (at Dump Capture)</span>
+                    <strong id="dashCpuPct">0%</strong>
+                  </div>
+                  <div class="gauge-track"><div class="gauge-bar" id="dashCpuBar"></div></div>
+                  <div class="gauge-sub" id="dashCpuNote">Upload or select a RAM dump to analyze target CPU/thread workload.</div>
+                </div>
+
+                <div class="gauge-row">
+                  <div class="gauge-label">
+                    <span>Target Physical RAM Utilization</span>
+                    <strong id="dashRamLabel">0 / 0 GB (0%)</strong>
+                  </div>
+                  <div class="gauge-track"><div class="gauge-bar" id="dashRamBar" style="background:linear-gradient(90deg, #10b981, #34d399);"></div></div>
+                  <div class="gauge-sub" id="dashRamSource">Source: Waiting for dump analysis</div>
+                </div>
+
+                <div class="gauge-row">
+                  <div class="gauge-label">
+                    <span>Target Swapped / Paged Memory Ratio</span>
+                    <strong id="dashSwapLabel">0%</strong>
+                  </div>
+                  <div class="gauge-track"><div class="gauge-bar" id="dashSwapBar" style="background:linear-gradient(90deg, #8b5cf6, #a78bfa);"></div></div>
+                  <div class="gauge-sub" id="dashThreatSub">Network Sockets: 0 • Malfind Hits: 0</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <span>Target System Kernel &amp; Dump Profile</span>
+                <button class="btn btn-secondary btn-sm" onclick="askAiToInspectSystem()">Ask CHW AI</button>
+              </div>
+              <div id="dashSysDetailsBox" style="font-family:'JetBrains Mono', Consolas, monospace; font-size:11.5px; line-height:1.65; max-height:185px; overflow-y:auto; color:var(--text-sub);">
+                Upload or select a RAM dump. Target OS, Kernel Build, CPU Cores, Architecture, and Capture Timestamp will be extracted directly from the memory image.
+              </div>
+            </div>
+          </div>
+
+          <!-- TOP ACTIVE PROCESSES FROM DUMP -->
+          <div class="card">
+            <div class="card-header">
+              <span>Top Active Processes in Target Memory Dump (by Threads &amp; Handles)</span>
+              <div style="display:flex; gap:8px;">
+                <button class="btn btn-purple btn-sm" onclick="openVisualProcessTreeFromModule()">Visual Process Tree</button>
+                <button class="btn btn-secondary btn-sm" onclick="navigate('process')">Process Module</button>
+              </div>
+            </div>
+            <div class="table-container" style="max-height:240px;">
+              <table>
+                <thead><tr><th>PID</th><th>Process Name</th><th>Active Threads</th><th>Open Handles</th></tr></thead>
+                <tbody id="dashTopProcsBody"><tr><td colspan="4">Run or wait for auto-triage <code>pslist</code> to populate top target processes.</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- VERIFIED DATA TABLE QUICK ACCESS -->
+          <div class="card">
+            <div class="card-header">
+              <span>Verified Outputs Ready (Click to View Structured Table with IOC &amp; IP Intel)</span>
+            </div>
+            <div class="table-container">
+              <table>
+                <thead><tr><th>Plugin</th><th>Run ID</th><th>Target OS</th><th>Evidence</th><th>Duration</th><th>Status</th><th>Action</th></tr></thead>
+                <tbody id="dashVerifiedTableBody"><tr><td colspan="7">No verified outputs saved yet. Open a case to view existing data.</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. CASE MANAGER -->
+        <section id="pane-cases" class="view-pane">
+          <div class="pane-header">
+            <div class="pane-title"><h1>Case Manager</h1><p>Create or open forensic cases. Opening a case automatically restores its evidence, detected target OS, verified runs, and AI chat context.</p></div>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header"><span>Open Existing Case Session</span><button class="btn btn-danger btn-sm" onclick="closeActiveCase()">Close Case</button></div>
+              <div class="form-group">
+                <label>Select Case</label>
+                <div style="display:flex; gap:8px;">
+                  <select id="caseManagerSelect" style="flex:1;"><option value="">-- Choose Case --</option></select>
+                  <button class="btn btn-primary" onclick="openCaseFromSelect()">Open Case</button>
+                </div>
+              </div>
+              <div id="activeCaseDetailCard" style="margin-top:10px; padding:12px; border-radius:8px; background:var(--bg-base); font-size:12px; line-height:1.6; color:var(--text-sub);">No active case open.</div>
+            </div>
+
+            <div class="card">
+              <div class="card-header"><span>Create New Investigation Case</span></div>
+              <form onsubmit="handleCreateCase(event)">
+                <div class="form-grid">
+                  <div class="form-group"><label>Case ID *</label><input type="text" id="newCaseId" placeholder="CASE-001" required /></div>
+                  <div class="form-group"><label>Case Name *</label><input type="text" id="newCaseName" placeholder="Incident Win11 Endpoint" required /></div>
+                  <div class="form-group"><label>Investigator *</label><input type="text" id="newCaseInv" placeholder="Lead DFIR Analyst" required /></div>
+                  <div class="form-group"><label>Reference ID</label><input type="text" id="newCaseRef" placeholder="INC-2026-001" /></div>
+                </div>
+                <div class="form-group"><label>Case Description</label><input type="text" id="newCaseDesc" placeholder="Scope, host identification..." /></div>
+                <button type="submit" class="btn btn-primary">Create &amp; Activate Case</button>
+              </form>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><span>Cases in <code>CHW_Results/</code></span></div>
+            <div class="table-container">
+              <table>
+                <thead><tr><th>Case ID</th><th>Case Name</th><th>Investigator</th><th>Evidence Images</th><th>Verified Outputs</th><th>Created</th><th>Action</th></tr></thead>
+                <tbody id="allCasesTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. EVIDENCE MANAGER -->
+        <section id="pane-evidence" class="view-pane">
+          <div class="pane-header"><div class="pane-title"><h1>Evidence Manager</h1><p>Upload multi-GB memory dumps in streaming chunks or register local paths. Target OS, kernel build, and physical RAM occupancy are detected automatically.</p></div></div>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header"><span>Chunked Streaming Upload (.mem, .raw, .dmp, .vmem, .lime)</span></div>
+              <div class="dropzone" id="ramDropzone" onclick="document.getElementById('ramFileInput').click()">
+                <svg viewBox="0 0 24 24" style="width:30px; height:30px; color:var(--primary); margin:0 auto 8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <div style="font-weight:600; margin-bottom:4px;">Drag &amp; Drop RAM Image or Click to Browse</div>
+                <div style="font-size:11.5px; color:var(--text-sub);">8 MB Streaming Chunks • Auto SHA-256 • Accurate Target OS &amp; Kernel Detection</div>
+                <input type="file" id="ramFileInput" style="display:none" onchange="uploadEvidence(this.files)" />
+              </div>
+              <div class="form-group" style="margin-top:10px;"><label>Evidence Notes</label><input type="text" id="uploadNotes" placeholder="Acquisition tool, target system..." /></div>
+              <div id="uploadProgressWrap" style="display:none; margin-top:10px;">
+                <div style="display:flex; justify-content:space-between; font-size:11.5px;"><span id="uploadLabel">Uploading...</span><span id="uploadPct">0%</span></div>
+                <div class="gauge-track" style="margin-top:5px;"><div class="gauge-bar" id="uploadBar"></div></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header"><span>Register Local Filesystem Image</span></div>
+              <form onsubmit="handleRegisterLocal(event)">
+                <div class="form-group"><label>Full Path to Memory Image *</label><input type="text" id="localPath" placeholder="/path/to/Windows11.mem" required /></div>
+                <div class="form-group"><label>Notes</label><input type="text" id="localNotes" placeholder="Read-only acquisition path" /></div>
+                <div class="form-group" style="flex-direction:row; align-items:center; gap:8px;">
+                  <input type="checkbox" id="copyToCaseCheck" />
+                  <label for="copyToCaseCheck" style="margin:0;">Copy into case <code>Evidence/</code> directory</label>
+                </div>
+                <button type="submit" class="btn btn-primary">Hash, Detect Target OS &amp; Register</button>
+              </form>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><span>Registered Evidence in Active Case</span></div>
+            <div class="table-container">
+              <table>
+                <thead><tr><th>Status</th><th>Evidence ID</th><th>Filename</th><th>Size</th><th>Target OS</th><th>Confidence</th><th>SHA-256 Hash</th><th>Action</th></tr></thead>
+                <tbody id="evidenceListBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. SYSTEM INFO -->
+        <section id="pane-sysinfo" class="view-pane">
+          <div class="pane-header"><div class="pane-title"><h1>System Information</h1><p>Kernel version, build symbols, CPU cores, and target OS profile from the memory dump.</p></div></div>
+          <div class="plugin-grid" id="grid-sysinfo"></div>
+        </section>
+
+        <!-- 5. PROCESS ANALYSIS (WITH VISUAL PROCESS TREE LAUNCHER) -->
+        <section id="pane-process" class="view-pane">
+          <div class="pane-header">
+            <div class="pane-title"><h1>Process Analysis</h1><p>Process listings, visual parent-child tree hierarchy, anomaly detection, pool scans, threads, and handles.</p></div>
+            <button class="btn btn-purple btn-sm" onclick="openVisualProcessTreeFromModule()">
+              <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+              <span>Visual Process Tree Graph</span>
+            </button>
+          </div>
+          <div class="plugin-grid" id="grid-process"></div>
+        </section>
+
+        <!-- 6. NETWORK & IP INTELLIGENCE -->
+        <section id="pane-network" class="view-pane">
+          <div class="pane-header">
+            <div class="pane-title"><h1>Network Analysis &amp; IPv4 / IPv6 Intelligence</h1><p>TCP/UDP endpoints, active sockets, and instant free ISP / ASN / Geo lookup for any external IPv4 or IPv6 address.</p></div>
+          </div>
+
+          <!-- QUICK ON-DEMAND IPv4 / IPv6 LOOKUP -->
+          <div class="card">
+            <div class="card-header">
+              <span>Free IPv4 &amp; IPv6 Threat / Geo / Provider Lookup (No API Key Required)</span>
+              <span class="badge badge-cyan">ipwho.is • proxyspace • country.is</span>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <input type="text" id="quickIpInput" placeholder="Enter any public IPv4 or IPv6 (e.g., 1.1.1.1 or 2606:4700:4700::1111)" style="flex:1; min-width:260px;" onkeydown="if(event.key==='Enter') lookupManualIp();" />
+              <button class="btn btn-primary" onclick="lookupManualIp()">Lookup IP Details</button>
+            </div>
+          </div>
+
+          <div class="plugin-grid" id="grid-network"></div>
+
+          <!-- ENRICHED EXTERNAL IPS TABLE -->
+          <div class="card">
+            <div class="card-header">
+              <span>Resolved External IPv4 / IPv6 Intelligence Table (Session Cache)</span>
+              <span class="badge badge-primary" id="ipCacheCountBadge">0 IPs Looked Up</span>
+            </div>
+            <div class="table-container" style="max-height:280px;">
+              <table>
+                <thead><tr><th>IP Address</th><th>Version</th><th>Country</th><th>City / Region</th><th>ISP / Provider</th><th>ASN / Org</th><th>Action</th></tr></thead>
+                <tbody id="networkIpIntelTableBody"><tr><td colspan="7">Click any external IP in <code>netscan</code> / <code>netstat</code> / <code>sockstat</code> tables or search above to view full details here.</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 7-14. OTHER FORENSIC MODULES -->
+        <section id="pane-malware" class="view-pane">
+          <div class="pane-header"><div class="pane-title"><h1>Malware &amp; VAD Analysis</h1><p>Executable injected VADs (RWX auto-highlighted), unlinked LDR modules, callbacks, and hooked syscall tables.</p></div></div>
+          <div class="plugin-grid" id="grid-malware"></div>
+        </section>
+
+        <section id="pane-memory" class="view-pane">
+          <div class="pane-header"><div class="pane-title"><h1>Memory Analysis</h1><p>Physical page statistics, Virtual Address Descriptors, and process page mappings.</p></div></div>
+          <div class="plugin-grid" id="grid-memory"></div>
+        </section>
+
+        <section id="pane-dll" class="view-pane">
+          <div class="pane-header"><div class="pane-title"><h1>DLL &amp; Loaded Modules</h1><p>PEB loaded DLL lists, kernel drivers, and modules.</p></div></div>
+          <div class="plugin-grid" id="grid-dll"></div>
+        </section>
+
+        <section id="pane-files" class="view-pane">
+          <div class="pane-header"><div class="pane-title"><h1>File Analysis</h1><p>Physical memory FILE_OBJECT pool scans and cached file extraction.</p></div></div>
+          <div class="plugin-grid" id="grid-files"></div>
+        </section>
+
+        <section id="pane-registry" class="view-pane">
+          <div class="pane-header"><div class="pane-title"><h1>Registry Analysis</h1><p>Resident registry hives, keys, values, and certificates.</p></div></div>
+          <div class="plugin-grid" id="grid-registry"></div>
+        </section>
+
+        <section id="pane-browser" class="view-pane">
+          <div class="pane-header">
+            <div class="pane-title"><h1>Browser Artifacts Correlation</h1><p>Correlated browser processes, command lines, file objects, and URLs from verified outputs.</p></div>
+            <button class="btn btn-primary btn-sm" onclick="correlateBrowserArtifacts()">Correlate Findings</button>
+          </div>
+          <div class="grid-2">
+            <div class="card"><div class="card-header"><span>Browser &amp; WebView Processes</span></div><div class="table-container"><table><thead><tr><th>Binary</th><th>Type</th><th>Details</th></tr></thead><tbody id="browProcTable"></tbody></table></div></div>
+            <div class="card"><div class="card-header"><span>Observed Command Lines</span></div><div class="table-container"><table><thead><tr><th>Binary</th><th>Command Line</th></tr></thead><tbody id="browCmdTable"></tbody></table></div></div>
+          </div>
+          <div class="grid-2">
+            <div class="card"><div class="card-header"><span>Browser File Handles (History/Cookies)</span></div><div class="table-container"><table><thead><tr><th>Type</th><th>Object Line</th></tr></thead><tbody id="browFileTable"></tbody></table></div></div>
+            <div class="card"><div class="card-header"><span>Recovered URL Strings</span></div><div class="table-container"><table><thead><tr><th>URL Fragment</th><th>Source</th></tr></thead><tbody id="browUrlTable"></tbody></table></div></div>
+          </div>
+        </section>
+
+        <section id="pane-cmdline" class="view-pane">
+          <div class="pane-header"><div class="pane-title"><h1>Command Line Analysis</h1><p>Process command-line arguments and environment blocks.</p></div></div>
+          <div class="plugin-grid" id="grid-cmdline"></div>
+        </section>
+
+        <section id="pane-services" class="view-pane">
+          <div class="pane-header"><div class="pane-title"><h1>Services &amp; Drivers</h1><p>Service records, kernel driver objects, and IRP tables.</p></div></div>
+          <div class="plugin-grid" id="grid-services"></div>
+        </section>
+
+        <!-- 15. DYNAMIC PLUGIN EXPLORER -->
+        <section id="pane-explorer" class="view-pane">
+          <div class="pane-header">
+            <div class="pane-title"><h1>Plugin Explorer</h1><p>Installed Volatility 3 plugins filtered automatically to match the target memory dump's OS.</p></div>
+            <input type="text" id="explorerSearch" placeholder="Filter plugins..." oninput="renderExplorerTable()" style="width:230px;" />
+          </div>
+          <div class="card">
+            <div class="table-container">
+              <table>
+                <thead><tr><th>Plugin</th><th>OS</th><th>Category</th><th>Description</th><th>Action</th></tr></thead>
+                <tbody id="explorerTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 16. EXTRACTION CENTER (INCLUDES MASTER EXPORT ALL CSV & PDF REPORT) -->
+        <section id="pane-extraction" class="view-pane">
+          <div class="pane-header">
+            <div class="pane-title">
+              <h1>Extraction &amp; Export Center</h1>
+              <p>Extract memory-resident files/dumps into <code>Extracted_Files/</code> or export the entire case analysis.</p>
+            </div>
+          </div>
+
+          <!-- MASTER ALL-IN-ONE EXPORTS INSIDE EXTRACTION CENTER -->
+          <div class="card" style="border-color: rgba(16, 185, 129, 0.45); background: linear-gradient(90deg, rgba(16, 185, 129, 0.07) 0%, var(--bg-card) 100%);">
+            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+              <div>
+                <div style="font-weight:700; font-size:14px; color:var(--text-main);">Master Case Forensic Data Exports</div>
+                <div style="font-size:12px; color:var(--text-sub); margin-top:3px;">Export every completed plugin run into a single Master CSV or generate a print-ready Official PDF Forensic Dossier.</div>
+              </div>
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button class="btn btn-emerald" onclick="exportMasterCsv()">
+                  <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  <span>Export All (Master CSV)</span>
+                </button>
+                <button class="btn btn-purple" onclick="generatePdfReport()">
+                  <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                  <span>Export Official PDF Report</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><span>Execute Artifact Extraction</span></div>
+            <div class="form-grid">
+              <div class="form-group"><label>Plugin</label><select id="extPluginSelect"><option value="windows.dumpfiles">windows.dumpfiles</option><option value="windows.memmap">windows.memmap --dump</option><option value="windows.pslist">windows.pslist --dump</option><option value="windows.malfind">windows.malfind --dump</option></select></div>
+              <div class="form-group"><label>Arguments (e.g., --pid 412 or --physaddr 0x123)</label><input type="text" id="extArgsInput" placeholder="--pid 412 --dump" /></div>
+              <div class="form-group"><label>Subfolder Name</label><input type="text" id="extFolderInput" placeholder="pid_412_extracted" /></div>
+            </div>
+            <button class="btn btn-primary" onclick="launchExtraction()">Run Extraction</button>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><span>Extracted Files</span></div>
+            <div class="table-container">
+              <table>
+                <thead><tr><th>Filename</th><th>Subfolder</th><th>Size</th><th>SHA-256</th><th>Action</th></tr></thead>
+                <tbody id="extractedFilesBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 17. REPORTS & HASHES (WITH OFFICIAL PDF FORENSIC REPORT EXPORT) -->
+        <section id="pane-reports" class="view-pane">
+          <div class="pane-header">
+            <div class="pane-title"><h1>Reports &amp; Integrity Hashes</h1><p>Generate formal PDF, CSV, JSON, or TXT forensic dossiers and verify cryptographic SHA-256 hashes.</p></div>
+            <button class="btn btn-purple btn-sm" onclick="generatePdfReport()">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <span>Export Official PDF Report</span>
+            </button>
+          </div>
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header"><span>Generate Report</span></div>
+              <div class="form-grid">
+                <div class="form-group"><label>Scope</label><select id="repScope"><option value="CONSOLIDATED_CASE">Consolidated Case</option><option value="PROCESS_ANALYSIS">Process Analysis</option><option value="NETWORK_ANALYSIS">Network Analysis</option><option value="EXTRACTION_REPORT">Extraction Report</option></select></div>
+                <div class="form-group"><label>Format</label><select id="repFormat"><option value="PDF">PDF (Official Dossier)</option><option value="CSV">CSV</option><option value="TXT">TXT</option><option value="JSON">JSON</option></select></div>
+              </div>
+              <div class="form-group"><label>Analyst Notes (Included in PDF &amp; File Reports)</label><textarea id="repNotes" rows="2" placeholder="Write executive summary, findings, or incident recommendations..."></textarea></div>
+              <button class="btn btn-primary" onclick="generateReport()">Generate Report</button>
+            </div>
+            <div class="card"><div class="card-header"><span>Saved Case Reports</span></div><div class="table-container"><table><thead><tr><th>Filename</th><th>Format</th><th>Size</th><th>Download</th></tr></thead><tbody id="reportsListBody"></tbody></table></div></div>
+          </div>
+          <div class="card"><div class="card-header"><span>Cryptographic Hash Registry</span></div><div class="table-container"><table><thead><tr><th>Category</th><th>Filename</th><th>Size</th><th>SHA-256</th><th>Verify</th></tr></thead><tbody id="hashesListBody"></tbody></table></div></div>
+        </section>
+
+        <!-- 18. SAVED RUNS (HISTORY) -->
+        <section id="pane-history" class="view-pane">
+          <div class="pane-header"><div class="pane-title"><h1>Saved Runs &amp; Audit Trail</h1><p>Every executed run has an isolated folder, raw stdout, structured JSON, and CSV.</p></div></div>
+          <div class="card"><div class="table-container"><table><thead><tr><th>Plugin</th><th>Run ID</th><th>Arguments</th><th>Status</th><th>Duration</th><th>CSV</th><th>Action</th></tr></thead><tbody id="historyTableBody"></tbody></table></div></div>
+        </section>
+
+        <!-- INLINE STRUCTURED TABLE + VISUAL PROCESS TREE + IOC VIEWER -->
+        <div id="structuredViewer" class="structured-workspace" style="display:none;">
+          <div class="viewer-toolbar">
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+              <span class="badge badge-emerald" id="viewerStatusBadge">VERIFIED DATA</span>
+              <strong id="viewerTitle" style="font-size:14px; font-family:'JetBrains Mono', Consolas, monospace;">windows.pslist (run_001)</strong>
+              <span id="viewerMeta" style="font-size:11.5px; color:var(--text-sub);"></span>
+            </div>
+            <div style="display:flex; align-items:center; gap:7px; flex-wrap:wrap;">
+              <input type="text" id="viewerSearchInput" placeholder="Filter rows..." oninput="applyViewerFilter()" style="width:170px; padding:5px 9px; font-size:11.5px;" />
+              <button class="btn btn-purple btn-sm" id="btnToggleProcessTree" style="display:none;" onclick="toggleVisualProcessTreeMode()">Visual Tree</button>
+              <button class="btn btn-secondary btn-sm" id="btnOnlyIocs" onclick="toggleIocFilter()">Only IOCs</button>
+              <button class="btn btn-primary btn-sm" onclick="askAiToInspectCurrentResult()">Analyze with AI</button>
+              <button class="btn btn-secondary btn-sm" id="btnToggleTableRaw" onclick="toggleViewerTableRaw()">View Raw</button>
+              <button class="btn btn-secondary btn-sm" onclick="downloadCurrentRunCsv()">CSV</button>
+              <button class="icon-btn" style="width:30px; height:30px;" onclick="closeViewer()" title="Close Viewer">
+                <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- IOC & EXTERNAL IP INTELLIGENCE SUMMARY STRIP -->
+          <div id="viewerIocStrip" class="ioc-strip" style="display:none;">
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <strong style="font-size:11.5px; color:var(--text-sub);">IOC SCAN:</strong>
+              <span class="badge badge-rose" id="iocCritCount">0 Critical</span>
+              <span class="badge badge-amber" id="iocWarnCount">0 Warnings</span>
+              <span class="badge badge-cyan" id="iocExtIpCount">0 External IPs</span>
+            </div>
+            <div style="display:flex; gap:7px; flex-wrap:wrap;">
+              <button class="btn btn-secondary btn-sm" id="btnLookupAllIps" style="display:none;" onclick="lookupAllVisibleExternalIps()">Lookup Visible External IPs</button>
+            </div>
+          </div>
+
+          <!-- TABLE VIEW -->
+          <div id="viewerTableWrap">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <span id="viewerRowCount" style="font-size:11.5px; color:var(--text-sub); font-weight:600;">0 Rows</span>
+              <div style="display:flex; gap:6px; align-items:center;">
+                <button class="btn btn-secondary btn-sm" onclick="changeViewerPage(-1)">Prev</button>
+                <span id="viewerPageLabel" style="font-size:11.5px; padding:4px;">Page 1 / 1</span>
+                <button class="btn btn-secondary btn-sm" onclick="changeViewerPage(1)">Next</button>
+              </div>
+            </div>
+            <div class="table-container" style="max-height:480px;"><table id="mainTable"><thead></thead><tbody></tbody></table></div>
+          </div>
+
+          <!-- VISUAL PROCESS TREE VIEW -->
+          <div id="viewerTreeWrap" style="display:none;">
+            <div class="ptree-controls">
+              <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <span class="badge badge-purple" id="ptreeStatsBadge">0 Nodes</span>
+                <span class="badge badge-rose" id="ptreeSuspBadge">0 Anomalies</span>
+                <input type="text" id="ptreeSearchInput" placeholder="Search process / PID..." oninput="renderVisualProcessTree()" style="width:190px; padding:5px 9px; font-size:11.5px;" />
+              </div>
+              <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                <button class="btn btn-secondary btn-sm" id="btnPtreeOnlySusp" onclick="togglePtreeSuspOnly()">Only Anomalies</button>
+                <button class="btn btn-secondary btn-sm" onclick="setAllTreeNodes(true)">Expand All</button>
+                <button class="btn btn-secondary btn-sm" onclick="setAllTreeNodes(false)">Collapse All</button>
+              </div>
+            </div>
+            <div class="ptree-wrap" id="ptreeContainer"></div>
+          </div>
+
+          <!-- RAW OUTPUT VIEW -->
+          <div id="viewerRawWrap" style="display:none;">
+            <pre id="viewerRawPre" style="background:var(--code-bg); color:#e2e8f0; padding:14px; border-radius:7px; font-family:'JetBrains Mono', Consolas, monospace; font-size:11.5px; overflow:auto; max-height:480px;"></pre>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- FLOATING TOOLTIP FOR COLLAPSED SIDEBAR -->
+  <div id="sidebarTooltip" class="sidebar-tooltip"></div>
+
+  <!-- IPv4 / IPv6 INTELLIGENCE POP-UP MODAL -->
+  <div class="modal-backdrop" id="ipModalBackdrop" onclick="if(event.target===this) closeIpModal();">
+    <div class="ip-modal">
+      <div class="ip-modal-header">
+        <div style="display:flex; align-items:center; gap:9px; min-width:0;">
+          <svg viewBox="0 0 24 24" style="color:var(--cyan);"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <div>
+            <strong id="ipModalTitle" style="font-size:14px; font-family:'JetBrains Mono', Consolas, monospace;">IP Intelligence</strong>
+            <span id="ipModalSub" style="display:block; font-size:11px; color:var(--text-sub);">Fetching Provider, ASN &amp; Geolocation...</span>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <button class="btn btn-primary btn-sm" id="ipModalAskAiBtn" onclick="askAiAboutCurrentIp()">Ask CHW AI</button>
+          <button class="icon-btn" style="width:32px; height:32px;" onclick="closeIpModal()" title="Close Pop-up">
+            <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="ip-modal-body" id="ipModalBody">
+        <div style="padding:18px; text-align:center; color:var(--text-sub);">Loading IPv4/IPv6 intelligence...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHW MEMORYX AI ASSISTANT SLIDE-OVER DRAWER -->
+  <div class="drawer-backdrop" id="aiBackdrop" onclick="toggleAiDrawer(false)"></div>
+  <aside class="ai-drawer" id="aiDrawer">
+    <div class="ai-drawer-header">
+      <div style="display:flex; align-items:center; gap:9px; min-width:0;">
+        <img src="https://iili.io/fU82tG2.png" style="height:24px;" alt="CHW MemoryX" onerror="this.style.display='none'"/>
+        <div>
+          <strong style="font-size:13.5px; display:block;">CHW MemoryX AI Assistant</strong>
+          <span id="aiContextBadge" style="font-size:10.5px; color:var(--text-sub);">5-Turn Context • Hindi / Hinglish / English</span>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:6px;">
+        <button class="btn btn-secondary btn-sm" onclick="clearAiChat()" title="Clear conversation context">Clear</button>
+        <button class="icon-btn" style="width:32px; height:32px;" onclick="toggleAiDrawer(false)" title="Close">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="ai-chat-body" id="aiChatBody"></div>
+
+    <div class="ai-input-area">
+      <div style="display:flex; gap:6px; flex-wrap:wrap;">
+        <button class="btn btn-secondary btn-sm" onclick="sendAiPrePrompt('Analyze current forensic output for malware and high-risk anomalies in a Markdown table.')">Check Malware Risks</button>
+        <button class="btn btn-secondary btn-sm" onclick="sendAiPrePrompt('इस मेमोरी डंप के सिस्टम स्पेसिफिकेशन और संदिग्ध प्रोसेस का सार हिंदी में बताएं।')">सारांश (हिंदी)</button>
+      </div>
+      <div style="display:flex; gap:6px;">
+        <input type="text" id="aiUserPrompt" placeholder="हिंदी, Hinglish या English में सवाल पूछें..." onkeydown="if(event.key==='Enter') sendAiMessage();" style="flex:1;" />
+        <button class="btn btn-primary" onclick="sendAiMessage()">Ask AI</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- CUSTOM COMMAND LAUNCHER SLIDE-OVER DRAWER -->
+  <div class="drawer-backdrop" id="cmdBackdrop" onclick="toggleCmdDrawer(false)"></div>
+  <aside class="cmd-drawer" id="cmdDrawer">
+    <div class="ai-drawer-header">
+      <strong>Volatility Command Launcher</strong>
+      <button class="icon-btn" style="width:32px; height:32px;" onclick="toggleCmdDrawer(false)"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div style="padding:16px; overflow-y:auto; flex:1; display:flex; flex-direction:column; gap:12px;">
+      <div class="form-group"><label>Plugin Name</label><input type="text" id="drawerPluginInput" placeholder="e.g., windows.pslist" oninput="updateDrawerPreview()" /></div>
+      <div class="form-group"><label>Arguments (Optional)</label><input type="text" id="drawerArgsInput" placeholder="e.g., --pid 412" oninput="updateDrawerPreview()" /></div>
+      <div class="form-group"><label>Command Preview</label><input type="text" id="drawerPreviewInput" readonly style="font-family:monospace; color:var(--primary); font-size:11.5px;" /></div>
+      <div id="drawerSavedNotice" style="display:none; padding:10px; border-radius:7px; background:var(--emerald-soft); border:1px solid rgba(16,185,129,0.3); font-size:11.5px;">
+        <strong style="color:var(--emerald);">Verified Data Already Exists!</strong>
+        <p style="margin:4px 0 8px;">This command has already been executed. Open the structured table directly without re-running.</p>
+        <button class="btn btn-emerald btn-sm" style="width:100%;" onclick="openDrawerSavedRun()">View Saved Table</button>
+      </div>
+      <button class="btn btn-primary" id="drawerExecBtn" onclick="executeFromDrawer()">Run Command</button>
+    </div>
+  </aside>
+
+  <!-- OFFICIAL PDF REPORT PRINT CONTAINER -->
+  <div id="pdfPrintContainer"></div>
+
+  <div class="toast-stack" id="toastStack"></div>
+
+  <script>
+    // -------------------------------------------------------------------------
+    // OS-AWARE MODULE CATALOG (STRICTLY MATCHED TO DETECTED TARGET DUMP OS)
+    // -------------------------------------------------------------------------
+    const OS_MODULE_DEFINITIONS = {
+      "Windows": {
+        "grid-sysinfo": [
+          { plugin: "windows.info", desc: "Target OS kernel, build version, CPU cores, capture time, and NT symbols." },
+          { plugin: "banners.Banners", desc: "Scan physical memory for operating system version banners." },
+          { plugin: "isfinfo.IsfInfo", desc: "List loaded Intermediate Symbol Format (ISF) tables." }
+        ],
+        "grid-process": [
+          { plugin: "windows.pslist", desc: "Active processes, threads, and handles via ActiveProcessLinks." },
+          { plugin: "windows.pstree", desc: "Process tree hierarchy to detect parent-child spoofing." },
+          { plugin: "windows.psscan", desc: "Physical pool scan for hidden or terminated _EPROCESS structures." },
+          { plugin: "windows.cmdline", desc: "Process command-line arguments extracted from PEB." },
+          { plugin: "windows.envars", desc: "Environment variables and paths per process." },
+          { plugin: "windows.dlllist", desc: "Loaded DLL modules per process." },
+          { plugin: "windows.handles", desc: "Open file, registry key, and mutant handles." },
+          { plugin: "windows.getsids", desc: "Security Identifiers (SIDs) owning each process." }
+        ],
+        "grid-network": [
+          { plugin: "windows.netscan", desc: "Physical memory pool scan for TCP/UDP endpoints and listeners." },
+          { plugin: "windows.netstat", desc: "Active network tracking structures for TCP/UDP connections." }
+        ],
+        "grid-malware": [
+          { plugin: "windows.malfind", desc: "Detect injected code and executable VAD regions (PAGE_EXECUTE_READWRITE)." },
+          { plugin: "windows.ldrmodules", desc: "Detect unlinked DLLs by comparing PEB lists against mapped VADs." },
+          { plugin: "windows.callbacks", desc: "Kernel callbacks and system notification routines." },
+          { plugin: "windows.driverscan", desc: "Scan physical memory for _DRIVER_OBJECT structures." },
+          { plugin: "windows.ssdt", desc: "System Service Descriptor Table function pointers and hooked entries." },
+          { plugin: "windows.modules", desc: "Loaded kernel modules and base addresses." }
+        ],
+        "grid-memory": [
+          { plugin: "windows.statistics", desc: "Target RAM valid, swapped, and invalid memory page counts." },
+          { plugin: "windows.memmap", desc: "Virtual and physical page mappings for a process." },
+          { plugin: "windows.vadinfo", desc: "Virtual Address Descriptor protection and range details." },
+          { plugin: "windows.vadwalk", desc: "Traverse and inspect process VAD tree nodes." },
+          { plugin: "windows.virtmap", desc: "Virtual memory address allocations." }
+        ],
+        "grid-dll": [
+          { plugin: "windows.dlllist", desc: "Enumerate loaded DLLs from process PEB Ldr lists." },
+          { plugin: "windows.ldrmodules", desc: "Cross-check InLoad, InInit, and InMem lists against VAD." },
+          { plugin: "windows.modules", desc: "Enumerate loaded kernel modules." },
+          { plugin: "windows.modscan", desc: "Pool scan for _LDR_DATA_TABLE_ENTRY structures." }
+        ],
+        "grid-files": [
+          { plugin: "windows.filescan", desc: "Physical pool scan for _FILE_OBJECT structures." },
+          { plugin: "windows.dumpfiles", desc: "Extract memory-resident cached files into Extracted_Files/." }
+        ],
+        "grid-registry": [
+          { plugin: "windows.registry.hivelist", desc: "Memory-resident registry hives and virtual offsets." },
+          { plugin: "windows.registry.hivescan", desc: "Physical pool scan for _CMHIVE structures." },
+          { plugin: "windows.registry.printkey", desc: "Print keys and values under a registry path." },
+          { plugin: "windows.registry.certificates", desc: "Extract certificates stored in registry hives." }
+        ],
+        "grid-cmdline": [
+          { plugin: "windows.cmdline", desc: "Full process launch arguments." },
+          { plugin: "windows.envars", desc: "Process environment block variables." }
+        ],
+        "grid-services": [
+          { plugin: "windows.svcscan", desc: "Windows service records and service states." },
+          { plugin: "windows.driverscan", desc: "Loaded kernel driver objects in physical memory." },
+          { plugin: "windows.driverirp", desc: "Driver IRP major function dispatch tables." },
+          { plugin: "windows.modules", desc: "Loaded kernel drivers." }
+        ]
+      },
+      "Linux": {
+        "grid-sysinfo": [
+          { plugin: "banners.Banners", desc: "Extract Linux kernel version banner and compilation timestamp." },
+          { plugin: "linux.banners", desc: "Identify Linux kernel banner string from memory." }
+        ],
+        "grid-process": [
+          { plugin: "linux.pslist", desc: "Active Linux processes from task_struct lists." },
+          { plugin: "linux.pstree", desc: "Parent-child process tree." },
+          { plugin: "linux.psaux", desc: "Process arguments and launch commands." },
+          { plugin: "linux.pidhashtable", desc: "Processes recovered via PID hash tables." }
+        ],
+        "grid-network": [
+          { plugin: "linux.sockstat", desc: "Linux active TCP/UDP network sockets and ports." },
+          { plugin: "linux.netfilter", desc: "Netfilter hooks and firewall modules." }
+        ],
+        "grid-malware": [
+          { plugin: "linux.check_syscall", desc: "Detect hooked system call table entries." },
+          { plugin: "linux.check_modules", desc: "Detect hidden or unlinked kernel modules." },
+          { plugin: "linux.malfind", desc: "Suspicious executable memory regions in user processes." }
+        ],
+        "grid-memory": [
+          { plugin: "linux.proc", desc: "Linux process virtual memory maps." }
+        ],
+        "grid-dll": [
+          { plugin: "linux.lsmod", desc: "Enumerate loaded Linux kernel modules (lsmod)." }
+        ],
+        "grid-files": [
+          { plugin: "linux.lsof", desc: "Open file descriptors per process." },
+          { plugin: "linux.elists", desc: "Enumerate VFS file entries." }
+        ],
+        "grid-registry": [],
+        "grid-cmdline": [
+          { plugin: "linux.psaux", desc: "Process command-line arguments." }
+        ],
+        "grid-services": [
+          { plugin: "linux.lsmod", desc: "Loaded kernel drivers and modules." },
+          { plugin: "linux.tty_check", desc: "Inspect TTY devices for rootkit hooks." }
+        ]
+      },
+      "macOS": {
+        "grid-sysinfo": [
+          { plugin: "banners.Banners", desc: "Extract Darwin/macOS kernel banner." },
+          { plugin: "mac.banners", desc: "Identify macOS kernel banner string." }
+        ],
+        "grid-process": [
+          { plugin: "mac.pslist", desc: "Active macOS processes." },
+          { plugin: "mac.pstree", desc: "Process hierarchy tree." },
+          { plugin: "mac.psaux", desc: "Process command-line arguments." }
+        ],
+        "grid-network": [
+          { plugin: "mac.netstat", desc: "macOS network sockets and connections." }
+        ],
+        "grid-malware": [
+          { plugin: "mac.check_syscall_hooks", desc: "Detect hooked Mach system calls." },
+          { plugin: "mac.malfind", desc: "Suspicious memory regions in macOS processes." }
+        ],
+        "grid-memory": [
+          { plugin: "mac.proc_maps", desc: "Process memory maps." }
+        ],
+        "grid-dll": [
+          { plugin: "mac.lsmod", desc: "Loaded macOS kernel extensions (kexts)." }
+        ],
+        "grid-files": [
+          { plugin: "mac.lsof", desc: "Open files per process." }
+        ],
+        "grid-registry": [],
+        "grid-cmdline": [
+          { plugin: "mac.psaux", desc: "Launch arguments." }
+        ],
+        "grid-services": [
+          { plugin: "mac.lsmod", desc: "Loaded kernel extensions (KEXTs)." }
+        ]
+      }
+    };
+
+    // -------------------------------------------------------------------------
+    // APPLICATION STATE
+    // -------------------------------------------------------------------------
+    const APP = {
+      activeCase: null,
+      activeEvidence: null,
+      detectedOs: "Unknown",
+      lastTelemetry: null,
+      verifiedRuns: {},
+      rawHistory: [],
+      lastRunningCount: 0,
+      knownCompletedJobs: new Set(),
+      bgPollTimer: null,
+      aiHistory: [],
+      ipCache: {},          // ip -> normalized geo/isp object
+      currentModalIp: "",
+      ptreeSuspOnly: false,
+      viewer: {
+        pluginFolder: "",
+        runId: "",
+        mode: "table",      // "table" | "tree" | "raw"
+        onlyIocs: false,
+        columns: [],
+        allRows: [],
+        filteredRows: [],
+        rowMeta: new WeakMap(),
+        visibleExternalIps: [],
+        page: 1,
+        pageSize: 100,
+        sortCol: null,
+        sortAsc: true,
+        rawText: ""
+      }
+    };
+
+    function escapeHtml(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function notify(msg, isError = false) {
+      const stack = document.getElementById("toastStack");
+      const el = document.createElement("div");
+      el.className = "toast";
+      if (isError) el.style.borderLeftColor = "var(--rose)";
+      el.textContent = msg;
+      stack.appendChild(el);
+      setTimeout(() => el.remove(), 4200);
+    }
+
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("collapsed");
+      hideSidebarTooltip();
+    }
+
+    function toggleCmdDrawer(open) {
+      document.getElementById("cmdDrawer").classList.toggle("open", open);
+      document.getElementById("cmdBackdrop").classList.toggle("open", open);
+      if (open) updateDrawerPreview();
+    }
+
+    function toggleAiDrawer(open) {
+      document.getElementById("aiDrawer").classList.toggle("open", open);
+      document.getElementById("aiBackdrop").classList.toggle("open", open);
+      if (open) loadAiHistoryFromServer();
+    }
+
+    function toggleTheme() {
+      const cur = document.documentElement.getAttribute("data-theme") || "dark";
+      const next = cur === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      fetch("/api/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ theme: next })
+      });
+    }
+
+    function navigate(paneId) {
+      document.querySelectorAll(".view-pane").forEach(p => p.classList.remove("active"));
+      document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+      const p = document.getElementById("pane-" + paneId);
+      if (p) p.classList.add("active");
+      const btn = document.querySelector(`.nav-btn[data-pane="${paneId}"]`);
+      if (btn) btn.classList.add("active");
+
+      if (paneId === "cases") loadCaseManager();
+      if (paneId === "extraction") loadExtractionList();
+      if (paneId === "reports") loadReportsAndHashes();
+      if (paneId === "browser") correlateBrowserArtifacts();
+      if (paneId === "explorer") renderExplorerTable();
+      if (paneId === "network") renderNetworkIpIntelTable();
+    }
+
+    // -------------------------------------------------------------------------
+    // COLLAPSED SIDEBAR FLOATING HOVER TOOLTIPS
+    // -------------------------------------------------------------------------
+    function hideSidebarTooltip() {
+      const tip = document.getElementById("sidebarTooltip");
+      if (tip) tip.classList.remove("visible");
+    }
+
+    function initSidebarTooltips() {
+      const sidebar = document.getElementById("sidebar");
+      const tip = document.getElementById("sidebarTooltip");
+      document.querySelectorAll(".sidebar .nav-btn").forEach(btn => {
+        btn.addEventListener("mouseenter", () => {
+          if (!sidebar.classList.contains("collapsed")) return;
+          const label = btn.getAttribute("data-label") || btn.textContent.trim();
+          if (!label) return;
+          const rect = btn.getBoundingClientRect();
+          tip.textContent = label;
+          tip.style.left = (rect.right + 10) + "px";
+          tip.style.top = (rect.top + rect.height / 2 - 14) + "px";
+          tip.classList.add("visible");
+        });
+        btn.addEventListener("mouseleave", hideSidebarTooltip);
+        btn.addEventListener("click", hideSidebarTooltip);
+      });
+      sidebar.addEventListener("scroll", hideSidebarTooltip);
+    }
+
+    // -------------------------------------------------------------------------
+    // FREE IPv4 & IPv6 INTELLIGENCE ENGINE (NO API KEY + 3-TIER AUTO-FALLBACK)
+    // -------------------------------------------------------------------------
+    function isPublicIPv4(ip) {
+      const parts = ip.split(".").map(Number);
+      if (parts.length !== 4 || parts.some(n => Number.isNaN(n) || n < 0 || n > 255)) return false;
+      const [a, b] = parts;
+      if (a === 0 || a === 10 || a === 127) return false;
+      if (a === 169 && b === 254) return false;
+      if (a === 172 && b >= 16 && b <= 31) return false;
+      if (a === 192 && b === 168) return false;
+      if (a === 100 && b >= 64 && b <= 127) return false; // CGNAT
+      if (a >= 224) return false; // Multicast / Reserved
+      return true;
+    }
+
+    function isPublicIPv6(ip) {
+      const clean = ip.trim().toLowerCase().replace(/^\[|\]$/g, "");
+      if (!clean.includes(":")) return false;
+      // Reject simple timestamps (HH:MM:SS) or MAC addresses (6 pairs)
+      if (/^\d{1,2}:\d{2}:\d{2}(\.\d+)?$/.test(clean)) return false;
+      if (/^([0-9a-f]{2}:){5}[0-9a-f]{2}$/.test(clean)) return false;
+      // Only global unicast IPv6 (2000::/3) are routable public internet IPv6 addresses
+      if (!/^[23][0-9a-f]{0,3}:/.test(clean)) return false;
+      const hasDouble = clean.includes("::");
+      if (hasDouble && clean.indexOf("::") !== clean.lastIndexOf("::")) return false;
+      const groups = clean.split(":").filter(g => g.length > 0);
+      if (!hasDouble && groups.length !== 8) return false;
+      if (hasDouble && groups.length > 7) return false;
+      return groups.every(g => /^[0-9a-f]{1,4}$/.test(g));
+    }
+
+    function extractExternalIpsFromText(text) {
+      const str = String(text || "");
+      const found = [];
+      const seen = new Set();
+
+      // Match IPv4
+      const v4Regex = /(?:^|[^0-9.])((?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})(?=[^0-9.]|$)/g;
+      let m;
+      while ((m = v4Regex.exec(str)) !== null) {
+        const ip = m[1];
+        if (isPublicIPv4(ip) && !seen.has(ip)) {
+          seen.add(ip);
+          found.push(ip);
+        }
+      }
+
+      // Match Public IPv6 (global unicast 2000::/3, with or without brackets)
+      const v6Regex = /(?:^|[\s\[,;(="'])([23][0-9a-fA-F]{0,3}:[0-9a-fA-F:]{2,38})(?=[\s\],;)"']|$)/g;
+      while ((m = v6Regex.exec(str)) !== null) {
+        let candidate = m[1].replace(/:+$/, "");
+        if (isPublicIPv6(candidate) && !seen.has(candidate)) {
+          seen.add(candidate);
+          found.push(candidate);
+        }
+      }
+
+      return found;
+    }
+
+    async function fetchIpIntelligence(ip) {
+      const cleanIp = String(ip || "").trim().replace(/^\[|\]$/g, "");
+      if (APP.ipCache[cleanIp]) return APP.ipCache[cleanIp];
+
+      const isV6 = cleanIp.includes(":");
+      const versionLabel = isV6 ? "IPv6" : "IPv4";
+
+      // Provider 1: ipwho.is (Free, HTTPS, CORS, IPv4 & IPv6, ISP + ASN + Geo)
+      try {
+        const res = await fetch(`https://ipwho.is/${encodeURIComponent(cleanIp)}`);
+        if (res.ok) {
+          const d = await res.json();
+          if (d && d.success !== false) {
+            const info = {
+              ip: d.ip || cleanIp,
+              version: d.type || versionLabel,
+              country: d.country || "Unknown",
+              country_code: d.country_code || "",
+              flag: (d.flag && d.flag.emoji) ? d.flag.emoji : "",
+              continent: d.continent || "",
+              region: d.region || "",
+              city: d.city || "",
+              postal: d.postal || "",
+              latitude: d.latitude,
+              longitude: d.longitude,
+              timezone: (d.timezone && d.timezone.id) ? `${d.timezone.id} (${d.timezone.utc || ""})` : "",
+              asn: (d.connection && d.connection.asn) ? `AS${d.connection.asn}` : "",
+              org: (d.connection && d.connection.org) ? d.connection.org : "",
+              isp: (d.connection && d.connection.isp) ? d.connection.isp : "",
+              domain: (d.connection && d.connection.domain) ? d.connection.domain : "",
+              source: "ipwho.is"
+            };
+            APP.ipCache[cleanIp] = info;
+            renderNetworkIpIntelTable();
+            return info;
+          }
+        }
+      } catch (e) {}
+
+      // Provider 2: geo.proxyspace.pro (Free, HTTPS, CORS, IPv4 & IPv6, ASN + Geo)
+      try {
+        const res = await fetch(`https://geo.proxyspace.pro/ip/${encodeURIComponent(cleanIp)}`);
+        if (res.ok) {
+          const d = await res.json();
+          if (d && (d.country || d.asn_organization)) {
+            const info = {
+              ip: d.ip || cleanIp,
+              version: versionLabel,
+              country: d.country || "Unknown",
+              country_code: d.country_code || "",
+              flag: "",
+              continent: d.continent || "",
+              region: d.subdivision || d.region || "",
+              city: d.city || "",
+              postal: d.postal_code || "",
+              latitude: d.latitude,
+              longitude: d.longitude,
+              timezone: d.time_zone || "",
+              asn: d.asn_number ? `AS${d.asn_number}` : "",
+              org: d.asn_organization || "",
+              isp: d.asn_organization || "",
+              domain: "",
+              source: "geo.proxyspace.pro"
+            };
+            APP.ipCache[cleanIp] = info;
+            renderNetworkIpIntelTable();
+            return info;
+          }
+        }
+      } catch (e) {}
+
+      // Provider 3: api.country.is (Free, Open-Source, HTTPS, CORS, IPv4 & IPv6)
+      try {
+        const res = await fetch(`https://api.country.is/${encodeURIComponent(cleanIp)}?fields=city,continent,subdivision,postal,location,asn`);
+        if (res.ok) {
+          const d = await res.json();
+          if (d && (d.country || d.asn)) {
+            const info = {
+              ip: d.ip || cleanIp,
+              version: versionLabel,
+              country: d.country || "Unknown",
+              country_code: d.country || "",
+              flag: "",
+              continent: d.continent || "",
+              region: d.subdivision || "",
+              city: d.city || "",
+              postal: d.postal || "",
+              latitude: d.location ? d.location.latitude : null,
+              longitude: d.location ? d.location.longitude : null,
+              timezone: d.location ? (d.location.time_zone || "") : "",
+              asn: (d.asn && d.asn.number) ? `AS${d.asn.number}` : "",
+              org: (d.asn && d.asn.organization) ? d.asn.organization : "",
+              isp: (d.asn && d.asn.organization) ? d.asn.organization : "",
+              domain: "",
+              source: "api.country.is"
+            };
+            APP.ipCache[cleanIp] = info;
+            renderNetworkIpIntelTable();
+            return info;
+          }
+        }
+      } catch (e) {}
+
+      throw new Error("All free IP geolocation providers failed or internet is offline.");
+    }
+
+    async function openIpIntelModal(ip) {
+      const cleanIp = String(ip || "").trim().replace(/^\[|\]$/g, "");
+      if (!cleanIp) return;
+      APP.currentModalIp = cleanIp;
+
+      document.getElementById("ipModalBackdrop").classList.add("open");
+      document.getElementById("ipModalTitle").textContent = cleanIp;
+      document.getElementById("ipModalSub").textContent = "Querying free IPv4/IPv6 Provider & Geolocation API...";
+      document.getElementById("ipModalBody").innerHTML = `
+        <div style="padding:24px; text-align:center; color:var(--text-sub);">
+          <div style="font-weight:600; margin-bottom:6px;">Resolving ${escapeHtml(cleanIp)}...</div>
+          <div style="font-size:11.5px;">Checking ISP, ASN, Organization, Country, City &amp; Coordinates</div>
+        </div>
+      `;
+
+      try {
+        const info = await fetchIpIntelligence(cleanIp);
+        document.getElementById("ipModalSub").textContent =
+          `${info.version} • Resolved via ${info.source}`;
+
+        const locStr = [info.city, info.region, info.country].filter(Boolean).join(", ") || "Unknown";
+        const coordStr = (info.latitude != null && info.longitude != null) ? `${info.latitude}, ${info.longitude}` : "N/A";
+        const mapUrl = (info.latitude != null && info.longitude != null)
+          ? `https://www.openstreetmap.org/?mlat=${info.latitude}&mlon=${info.longitude}#map=10/${info.latitude}/${info.longitude}`
+          : "";
+
+        document.getElementById("ipModalBody").innerHTML = `
+          <div class="ip-hero-grid">
+            <div class="ip-stat-box">
+              <span>Location</span>
+              <strong>${escapeHtml(info.flag ? info.flag + " " : "")}${escapeHtml(info.country)} (${escapeHtml(info.country_code || "-")})</strong>
+            </div>
+            <div class="ip-stat-box">
+              <span>City / Region</span>
+              <strong>${escapeHtml([info.city, info.region].filter(Boolean).join(", ") || "N/A")}</strong>
+            </div>
+            <div class="ip-stat-box">
+              <span>ISP / Provider</span>
+              <strong>${escapeHtml(info.isp || info.org || "Unknown")}</strong>
+            </div>
+            <div class="ip-stat-box">
+              <span>ASN</span>
+              <strong>${escapeHtml(info.asn || "N/A")}</strong>
+            </div>
+          </div>
+
+          <div class="table-container" style="max-height:270px;">
+            <table>
+              <thead><tr><th>Attribute</th><th>Resolved IP Intelligence Value</th></tr></thead>
+              <tbody>
+                <tr><td>IP Address</td><td><strong>${escapeHtml(info.ip)}</strong> <span class="badge badge-cyan">${escapeHtml(info.version)}</span></td></tr>
+                <tr><td>Provider / ISP</td><td>${escapeHtml(info.isp || "N/A")}</td></tr>
+                <tr><td>Organization</td><td>${escapeHtml(info.org || "N/A")}</td></tr>
+                <tr><td>ASN</td><td>${escapeHtml(info.asn || "N/A")}</td></tr>
+                <tr><td>Provider Domain</td><td>${escapeHtml(info.domain || "N/A")}</td></tr>
+                <tr><td>Full Location</td><td>${escapeHtml(locStr)} ${info.continent ? `(${escapeHtml(info.continent)})` : ""}</td></tr>
+                <tr><td>Postal Code</td><td>${escapeHtml(info.postal || "N/A")}</td></tr>
+                <tr><td>Timezone</td><td>${escapeHtml(info.timezone || "N/A")}</td></tr>
+                <tr><td>Coordinates</td><td>${escapeHtml(coordStr)} ${mapUrl ? `<a class="btn btn-secondary btn-sm" style="margin-left:8px; padding:2px 7px;" href="${mapUrl}" target="_blank" rel="noopener">Open Map</a>` : ""}</td></tr>
+                <tr><td>Intel Source</td><td>${escapeHtml(info.source)} (Free Public API)</td></tr>
+              </tbody>
+            </table>
+          </div>
+        `;
+
+        // Also re-render table so inline IP intel badge appears immediately in the table cell!
+        if (document.getElementById("structuredViewer").style.display !== "none" && APP.viewer.mode === "table") {
+          renderTableRows();
+        }
+      } catch (err) {
+        document.getElementById("ipModalSub").textContent = "Lookup Failed";
+        document.getElementById("ipModalBody").innerHTML = `
+          <div style="padding:16px; border-radius:8px; background:var(--rose-soft); border:1px solid var(--rose); color:var(--text-main);">
+            <strong>Unable to resolve ${escapeHtml(cleanIp)}</strong>
+            <p style="margin-top:6px; font-size:12px;">${escapeHtml(err.message)}. Check your internet connection or try again shortly.</p>
+          </div>
+        `;
+      }
+    }
+
+    function closeIpModal() {
+      document.getElementById("ipModalBackdrop").classList.remove("open");
+    }
+
+    function askAiAboutCurrentIp() {
+      const ip = APP.currentModalIp;
+      if (!ip) return;
+      const info = APP.ipCache[ip];
+      closeIpModal();
+      toggleAiDrawer(true);
+      const summary = info
+        ? `IP: ${info.ip} (${info.version}), Provider/ISP: ${info.isp || info.org}, ASN: ${info.asn}, Location: ${info.city}, ${info.region}, ${info.country}`
+        : `IP: ${ip}`;
+      sendAiMessage(`Investigate this external IP observed in the memory dump: ${summary}. Could this be legitimate cloud/CDN traffic or potential C2/exfiltration? Explain clearly in a Markdown table.`);
+    }
+
+    function lookupManualIp() {
+      const val = (document.getElementById("quickIpInput").value || "").trim();
+      if (!val) return notify("Enter a public IPv4 or IPv6 address.", true);
+      if (!isPublicIPv4(val) && !isPublicIPv6(val)) {
+        return notify("Please enter a valid public (non-private) IPv4 or IPv6 address.", true);
+      }
+      openIpIntelModal(val);
+    }
+
+    async function lookupAllVisibleExternalIps() {
+      const ips = APP.viewer.visibleExternalIps.filter(ip => !APP.ipCache[ip]).slice(0, 12);
+      if (!ips.length) {
+        return notify("All visible external IPs (up to batch limit) are already resolved in the table!");
+      }
+      notify(`Resolving ${ips.length} external IP(s) via free IPv4/IPv6 API...`);
+      for (const ip of ips) {
+        try {
+          await fetchIpIntelligence(ip);
+        } catch (e) {}
+      }
+      renderTableRows();
+      notify(`Enriched ${ips.length} external IP(s) inside the table!`);
+    }
+
+    function renderNetworkIpIntelTable() {
+      const tbody = document.getElementById("networkIpIntelTableBody");
+      const badge = document.getElementById("ipCacheCountBadge");
+      if (!tbody) return;
+      const entries = Object.values(APP.ipCache);
+      if (badge) badge.textContent = `${entries.length} IPs Looked Up`;
+      if (!entries.length) {
+        tbody.innerHTML = `<tr><td colspan="7">Click any external IP in <code>netscan</code> / <code>netstat</code> / <code>sockstat</code> tables or search above to view full details here.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = entries.map(info => `
+        <tr>
+          <td><button class="ip-chip" onclick="openIpIntelModal('${escapeHtml(info.ip)}')">${escapeHtml(info.ip)}</button></td>
+          <td><span class="badge badge-cyan">${escapeHtml(info.version)}</span></td>
+          <td>${escapeHtml(info.flag ? info.flag + " " : "")}${escapeHtml(info.country)}</td>
+          <td>${escapeHtml([info.city, info.region].filter(Boolean).join(", ") || "-")}</td>
+          <td>${escapeHtml(info.isp || "-")}</td>
+          <td>${escapeHtml([info.asn, info.org].filter(Boolean).join(" • ") || "-")}</td>
+          <td><button class="btn btn-secondary btn-sm" onclick="openIpIntelModal('${escapeHtml(info.ip)}')">Details</button></td>
+        </tr>
+      `).join("");
+    }
+
+    function renderCellWithExternalIps(cellText) {
+      const str = String(cellText ?? "");
+      const ips = extractExternalIpsFromText(str);
+      if (!ips.length) return escapeHtml(str);
+
+      let html = escapeHtml(str);
+      ips.forEach(ip => {
+        const cached = APP.ipCache[ip];
+        const safeIp = escapeHtml(ip);
+        const inlineInfo = cached
+          ? `<span class="ip-inline-meta" title="${escapeHtml([cached.isp, cached.city, cached.country].filter(Boolean).join(" • "))}">${escapeHtml(cached.flag ? cached.flag + " " : "")}${escapeHtml(cached.country_code || cached.country)}${cached.isp ? " • " + escapeHtml(cached.isp.slice(0, 22)) : ""}</span>`
+          : "";
+        const replacement = `<button type="button" class="ip-chip" title="Click for full IPv4/IPv6 Provider & Location" onclick="event.stopPropagation(); openIpIntelModal('${safeIp}')">${safeIp}</button>${inlineInfo}`;
+        html = html.split(safeIp).join(replacement);
+      });
+      return html;
+    }
+
+    // -------------------------------------------------------------------------
+    // IOC / THREAT INTEL AUTO-HIGHLIGHTING ENGINE
+    // -------------------------------------------------------------------------
+    function evaluateRowIoc(rowObj, pluginName) {
+      const pLow = String(pluginName || "").toLowerCase();
+      const joined = Object.values(rowObj || {}).join(" ");
+      const low = joined.toLowerCase();
+      const reasons = [];
+      let severity = "none"; // "crit" | "warn" | "none"
+
+      // Critical Checks
+      if (low.includes("page_execute_readwrite")) {
+        severity = "crit";
+        reasons.push("RWX Injected Memory");
+      }
+      if (pLow.includes("malfind") && (low.includes("4d 5a") || low.includes("mz"))) {
+        severity = "crit";
+        reasons.push("PE/MZ Injected Header");
+      }
+      if (pLow.includes("ldrmodules")) {
+        const inLoad = String(rowObj.InLoad || "").toLowerCase();
+        const inInit = String(rowObj.InInit || "").toLowerCase();
+        const inMem = String(rowObj.InMem || "").toLowerCase();
+        if (inLoad === "false" && inMem === "false") {
+          severity = "crit";
+          reasons.push("Unlinked Hidden DLL");
+        }
+      }
+      const critKeywords = [
+        "mimikatz", "meterpreter", "cobalt", "beacon", "psexec",
+        "lazagne", "sharphound", "procdump", "-encodedcommand", " -enc ",
+        "frombase64string", "invoke-expression", "iex(", "nc.exe", "ncat.exe"
+      ];
+      for (const kw of critKeywords) {
+        if (low.includes(kw)) {
+          severity = "crit";
+          reasons.push(`Threat Keyword: ${kw.trim()}`);
+          break;
+        }
+      }
+
+      // Warning Checks
+      if (severity !== "crit") {
+        const lolbins = [
+          "powershell.exe", "pwsh.exe", "cmd.exe", "mshta.exe", "wscript.exe",
+          "cscript.exe", "certutil.exe", "rundll32.exe", "regsvr32.exe",
+          "bitsadmin.exe", "wmic.exe", "schtasks.exe"
+        ];
+        for (const bin of lolbins) {
+          if (low.includes(bin)) {
+            severity = "warn";
+            reasons.push(`LOLBin: ${bin}`);
+            break;
+          }
+        }
+        if (
+          low.includes("\\appdata\\local\\temp") ||
+          low.includes("\\users\\public\\") ||
+          low.includes("\\programdata\\") ||
+          low.includes("/tmp/") ||
+          low.includes("/dev/shm/")
+        ) {
+          severity = "warn";
+          reasons.push("Suspicious Temp/Public Path");
+        }
+      }
+
+      const externalIps = extractExternalIpsFromText(joined);
+      if (externalIps.length && (pLow.includes("net") || pLow.includes("sock"))) {
+        if (severity === "none") severity = "warn";
+        reasons.push(`External IP (${externalIps[0]})`);
+      }
+
+      return { severity, reasons, externalIps };
+    }
+
+    // -------------------------------------------------------------------------
+    // VISUAL PROCESS TREE GRAPH (PARENT -> CHILD + ANOMALY DETECTION)
+    // -------------------------------------------------------------------------
+    function isProcessPlugin(pluginName) {
+      const p = String(pluginName || "").toLowerCase();
+      return p.includes("pslist") || p.includes("pstree") || p.includes("psscan");
+    }
+
+    function cleanProcessName(raw) {
+      return String(raw || "").replace(/^[\s*.+|-]+/, "").trim();
+    }
+
+    function evaluateProcessAnomaly(node, parentNode) {
+      const name = node.name.toLowerCase();
+      const pName = parentNode ? parentNode.name.toLowerCase() : "";
+
+      // Classic Windows Parent-Child Spoofing Checks
+      if (name === "svchost.exe" && parentNode && pName !== "services.exe") {
+        return { sev: "crit", reason: `Anomalous Parent: svchost.exe spawned by ${parentNode.name}` };
+      }
+      if (name === "lsass.exe" && parentNode && pName !== "wininit.exe") {
+        return { sev: "crit", reason: `Anomalous Parent: lsass.exe spawned by ${parentNode.name}` };
+      }
+      if (name === "services.exe" && parentNode && pName !== "wininit.exe") {
+        return { sev: "crit", reason: `Anomalous Parent: services.exe spawned by ${parentNode.name}` };
+      }
+      if (name === "lsm.exe" && parentNode && pName !== "wininit.exe") {
+        return { sev: "crit", reason: `Anomalous Parent: lsm.exe spawned by ${parentNode.name}` };
+      }
+
+      // Office / Browser / Document reader spawning shells or scripting LOLBins
+      const officeOrBrowser = [
+        "winword.exe", "excel.exe", "powerpnt.exe", "outlook.exe",
+        "acrobat.exe", "acrord32.exe", "chrome.exe", "msedge.exe", "firefox.exe"
+      ];
+      const shellChildren = [
+        "cmd.exe", "powershell.exe", "pwsh.exe", "wscript.exe", "cscript.exe",
+        "mshta.exe", "rundll32.exe", "regsvr32.exe", "certutil.exe", "bitsadmin.exe"
+      ];
+      if (parentNode && officeOrBrowser.includes(pName) && shellChildren.includes(name)) {
+        return { sev: "crit", reason: `Suspicious Execution Chain: ${parentNode.name} → ${node.name}` };
+      }
+
+      // Known offensive names
+      if (["mimikatz.exe", "nc.exe", "ncat.exe", "psexec.exe", "psexesvc.exe", "procdump.exe"].includes(name)) {
+        return { sev: "crit", reason: `High-Risk Tool Detected: ${node.name}` };
+      }
+
+      // LOLBin warning
+      if (shellChildren.includes(name)) {
+        return { sev: "warn", reason: `Scripting / Shell Engine (${node.name})` };
+      }
+
+      // Core OS process tag
+      if (["system", "smss.exe", "csrss.exe", "wininit.exe", "services.exe", "explorer.exe", "systemd", "init", "launchd"].includes(name)) {
+        return { sev: "sys", reason: "" };
+      }
+
+      return { sev: "normal", reason: "" };
+    }
+
+    function buildProcessHierarchy(rows) {
+      const nodeMap = new Map();
+      const ordered = [];
+
+      rows.forEach((r, idx) => {
+        const pid = String(r.PID ?? r.Pid ?? r.pid ?? `row_${idx}`).trim();
+        const ppid = String(r.PPID ?? r.Ppid ?? r.ppid ?? "").trim();
+        const rawName = r.ImageFileName || r.COMM || r.NAME || r.Process || r.Image || "(unknown)";
+        const name = cleanProcessName(rawName);
+        const threads = r.Threads ?? "";
+        const handles = r.Handles ?? "";
+        const createTime = r.CreateTime ?? "";
+        const exitTime = r.ExitTime ?? "";
+        const exited = Boolean(exitTime && !["n/a", "-", "none", "null"].includes(String(exitTime).trim().toLowerCase()));
+
+        const key = nodeMap.has(pid) ? `${pid}_${idx}` : pid;
+        const node = {
+          key, pid, ppid, name, threads, handles, createTime, exited,
+          children: [],
+          sev: "normal",
+          reason: ""
+        };
+        nodeMap.set(key, node);
+        ordered.push(node);
+      });
+
+      const roots = [];
+      ordered.forEach(node => {
+        const parent = (node.ppid && node.ppid !== node.pid) ? nodeMap.get(node.ppid) : null;
+        if (parent) {
+          parent.children.push(node);
+          const check = evaluateProcessAnomaly(node, parent);
+          node.sev = check.sev;
+          node.reason = check.reason;
+        } else {
+          const check = evaluateProcessAnomaly(node, null);
+          node.sev = check.sev;
+          node.reason = check.reason;
+          roots.push(node);
+        }
+      });
+
+      return { roots, totalCount: ordered.length, anomalyCount: ordered.filter(n => n.sev === "crit" || n.sev === "warn").length };
+    }
+
+    function renderVisualProcessTree() {
+      const container = document.getElementById("ptreeContainer");
+      const query = (document.getElementById("ptreeSearchInput").value || "").toLowerCase().trim();
+      const { roots, totalCount, anomalyCount } = buildProcessHierarchy(APP.viewer.allRows || []);
+
+      document.getElementById("ptreeStatsBadge").textContent = `${totalCount} Processes`;
+      document.getElementById("ptreeSuspBadge").textContent = `${anomalyCount} Flagged`;
+
+      function nodeMatchesTree(node) {
+        const selfMatchQuery = !query || node.name.toLowerCase().includes(query) || node.pid.toLowerCase().includes(query) || node.reason.toLowerCase().includes(query);
+        const selfMatchSusp = !APP.ptreeSuspOnly || node.sev === "crit" || node.sev === "warn";
+        const childMatches = node.children.some(c => nodeMatchesTree(c));
+        return (selfMatchQuery && selfMatchSusp) || childMatches;
+      }
+
+      function renderNodes(nodes, isRoot) {
+        const visible = nodes.filter(nodeMatchesTree);
+        if (!visible.length) return "";
+        let html = `<ul class="ptree-list${isRoot ? " root-list" : ""}">`;
+        visible.forEach(node => {
+          const hasChildren = node.children.some(nodeMatchesTree);
+          const sevClass = node.sev === "crit" ? "sev-crit" : (node.sev === "warn" ? "sev-warn" : (node.sev === "sys" ? "sev-sys" : ""));
+          const badgeHtml = node.sev === "crit"
+            ? `<span class="badge badge-rose">CRITICAL: ${escapeHtml(node.reason)}</span>`
+            : (node.sev === "warn"
+              ? `<span class="badge badge-amber">${escapeHtml(node.reason)}</span>`
+              : (node.exited ? `<span class="badge badge-primary">EXITED</span>` : ""));
+
+          const metaParts = [`PID: ${node.pid}`, `PPID: ${node.ppid || "-"}`];
+          if (node.threads !== "") metaParts.push(`Threads: ${node.threads}`);
+          if (node.handles !== "") metaParts.push(`Handles: ${node.handles}`);
+
+          html += `<li class="ptree-item">
+            <div class="ptree-node ${sevClass}">
+              <button type="button" class="ptree-toggle ${hasChildren ? "" : "leaf"}" onclick="toggleTreeBranch(this)">${hasChildren ? "−" : "•"}</button>
+              <span class="ptree-name">${escapeHtml(node.name)}</span>
+              <span class="ptree-meta">${escapeHtml(metaParts.join(" | "))}</span>
+              ${badgeHtml}
+              <button type="button" class="btn btn-secondary btn-sm" style="padding:2px 7px; font-size:10.5px;" onclick="askAiAboutProcess('${escapeHtml(node.pid)}', '${escapeHtml(node.ppid)}', '${escapeHtml(node.name)}', '${escapeHtml(node.reason)}')">Ask AI</button>
+            </div>
+            ${hasChildren ? renderNodes(node.children, false) : ""}
+          </li>`;
+        });
+        html += `</ul>`;
+        return html;
+      }
+
+      const rendered = renderNodes(roots, true);
+      container.innerHTML = rendered || `<div style="padding:18px; color:var(--text-sub);">No process tree nodes match the current filter.</div>`;
+    }
+
+    function toggleTreeBranch(btn) {
+      if (btn.classList.contains("leaf")) return;
+      const li = btn.closest(".ptree-item");
+      const sub = li ? li.querySelector(":scope > ul.ptree-list") : null;
+      if (!sub) return;
+      const hidden = sub.style.display === "none";
+      sub.style.display = hidden ? "block" : "none";
+      btn.textContent = hidden ? "−" : "+";
+    }
+
+    function setAllTreeNodes(expand) {
+      document.querySelectorAll("#ptreeContainer ul.ptree-list:not(.root-list)").forEach(ul => {
+        ul.style.display = expand ? "block" : "none";
+      });
+      document.querySelectorAll("#ptreeContainer .ptree-toggle:not(.leaf)").forEach(btn => {
+        btn.textContent = expand ? "−" : "+";
+      });
+    }
+
+    function togglePtreeSuspOnly() {
+      APP.ptreeSuspOnly = !APP.ptreeSuspOnly;
+      document.getElementById("btnPtreeOnlySusp").classList.toggle("active-toggle", APP.ptreeSuspOnly);
+      renderVisualProcessTree();
+    }
+
+    function askAiAboutProcess(pid, ppid, name, reason) {
+      toggleAiDrawer(true);
+      sendAiMessage(`Inspect process "${name}" (PID: ${pid}, PPID: ${ppid})${reason ? ` flagged as "${reason}"` : ""} from this memory dump. Is this process legitimate or suspicious? Provide forensic verification steps in a Markdown table.`);
+    }
+
+    async function openVisualProcessTreeFromModule() {
+      const savedTree = findSavedRun("windows.pstree") || findSavedRun("linux.pstree") || findSavedRun("mac.pstree") ||
+                        findSavedRun("windows.pslist") || findSavedRun("linux.pslist") || findSavedRun("mac.pslist");
+      if (!savedTree) {
+        notify("No saved pstree or pslist run found yet. Executing pslist first...");
+        const target = APP.detectedOs === "Linux" ? "linux.pslist" : (APP.detectedOs === "macOS" ? "mac.pslist" : "windows.pslist");
+        return smartRunPlugin(target);
+      }
+      const folder = savedTree.plugin.replace(/[^A-Za-z0-9._-]/g, "_");
+      await openStructuredRun(folder, savedTree.run_id, "tree");
+    }
+
+    // -------------------------------------------------------------------------
+    // RICH MARKDOWN RENDERER (BOLD, ITALICS, CODE, LISTS, TABLES)
+    // -------------------------------------------------------------------------
+    function formatInlineMarkdown(text) {
+      let s = escapeHtml(text);
+      const codeTokens = [];
+      s = s.replace(/`([^`]+)`/g, (_, code) => {
+        const idx = codeTokens.length;
+        codeTokens.push(`<code>${code}</code>`);
+        return `@@CODE_${idx}@@`;
+      });
+      s = s.replace(/\*\*\*([^*]+)\*\*\*/g, "<strong><em>$1</em></strong>");
+      s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+      s = s.replace(/__([^_]+)__/g, "<strong>$1</strong>");
+      s = s.replace(/(^|[^*])\*([^*\n]+)\*/g, "$1<em>$2</em>");
+      s = s.replace(/(^|\s)_([^_\n]+)_/g, "$1<em>$2</em>");
+      s = s.replace(/@@CODE_(\d+)@@/g, (_, idx) => codeTokens[Number(idx)]);
+      return s;
+    }
+
+    function renderMarkdown(mdText) {
+      const raw = String(mdText || "").replace(/\r\n/g, "\n");
+      const fencedBlocks = [];
+      const textWithPlaceholders = raw.replace(/```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g, (_, lang, code) => {
+        const idx = fencedBlocks.length;
+        fencedBlocks.push(`<pre><code>${escapeHtml(code.replace(/\n$/, ""))}</code></pre>`);
+        return `\n@@FENCE_${idx}@@\n`;
+      });
+
+      const lines = textWithPlaceholders.split("\n");
+      let html = "";
+      let i = 0;
+
+      while (i < lines.length) {
+        const line = lines[i];
+        const trimmed = line.trim();
+        if (!trimmed) { i++; continue; }
+
+        const fenceMatch = trimmed.match(/^@@FENCE_(\d+)@@$/);
+        if (fenceMatch) { html += fencedBlocks[Number(fenceMatch[1])]; i++; continue; }
+
+        if (/^(-{3,}|\*{3,}|_{3,})$/.test(trimmed)) { html += "<hr />"; i++; continue; }
+
+        const hMatch = trimmed.match(/^(#{1,4})\s+(.+)$/);
+        if (hMatch) {
+          const lvl = hMatch[1].length;
+          html += `<h${lvl}>${formatInlineMarkdown(hMatch[2])}</h${lvl}>`;
+          i++;
+          continue;
+        }
+
+        if (
+          trimmed.includes("|") &&
+          i + 1 < lines.length &&
+          /^\s*\|?(\s*:?-{2,}:?\s*\|)+\s*:?-{2,}:?\s*\|?\s*$/.test(lines[i + 1].trim())
+        ) {
+          const splitRow = (r) => {
+            let clean = r.trim();
+            if (clean.startsWith("|")) clean = clean.slice(1);
+            if (clean.endsWith("|")) clean = clean.slice(0, -1);
+            return clean.split("|").map(c => c.trim());
+          };
+          const headers = splitRow(trimmed);
+          i += 2;
+          const bodyRows = [];
+          while (i < lines.length && lines[i].trim().includes("|")) {
+            bodyRows.push(splitRow(lines[i]));
+            i++;
+          }
+          html += `<div class="ai-md-table-wrap"><table class="ai-md-table"><thead><tr>`;
+          headers.forEach(h => { html += `<th>${formatInlineMarkdown(h)}</th>`; });
+          html += `</tr></thead><tbody>`;
+          bodyRows.forEach(row => {
+            html += `<tr>`;
+            headers.forEach((_, ci) => { html += `<td>${formatInlineMarkdown(row[ci] || "")}</td>`; });
+            html += `</tr>`;
+          });
+          html += `</tbody></table></div>`;
+          continue;
+        }
+
+        if (trimmed.startsWith(">")) {
+          const qLines = [];
+          while (i < lines.length && lines[i].trim().startsWith(">")) {
+            qLines.push(lines[i].trim().replace(/^>\s?/, ""));
+            i++;
+          }
+          html += `<blockquote>${qLines.map(formatInlineMarkdown).join("<br>")}</blockquote>`;
+          continue;
+        }
+
+        if (/^[-*+]\s+/.test(trimmed)) {
+          html += "<ul>";
+          while (i < lines.length && /^[-*+]\s+/.test(lines[i].trim())) {
+            html += `<li>${formatInlineMarkdown(lines[i].trim().replace(/^[-*+]\s+/, ""))}</li>`;
+            i++;
+          }
+          html += "</ul>";
+          continue;
+        }
+
+        if (/^\d+\.\s+/.test(trimmed)) {
+          html += "<ol>";
+          while (i < lines.length && /^\d+\.\s+/.test(lines[i].trim())) {
+            html += `<li>${formatInlineMarkdown(lines[i].trim().replace(/^\d+\.\s+/, ""))}</li>`;
+            i++;
+          }
+          html += "</ol>";
+          continue;
+        }
+
+        const paraLines = [];
+        while (
+          i < lines.length &&
+          lines[i].trim() &&
+          !/^(#{1,4}\s+|[-*+]\s+|\d+\.\s+|>\s?|@@FENCE_\d+@@|(-{3,}|\*{3,}))/.test(lines[i].trim())
+        ) {
+          if (
+            lines[i].includes("|") &&
+            i + 1 < lines.length &&
+            /^\s*\|?(\s*:?-{2,}:?\s*\|)+\s*:?-{2,}:?\s*\|?\s*$/.test(lines[i + 1].trim())
+          ) break;
+          paraLines.push(lines[i].trim());
+          i++;
+        }
+        if (paraLines.length) html += `<p>${paraLines.map(formatInlineMarkdown).join("<br>")}</p>`;
+        else i++;
+      }
+
+      return html || `<p>${escapeHtml(mdText)}</p>`;
+    }
+
+    // -------------------------------------------------------------------------
+    // MASTER ALL-IN-ONE CSV & OFFICIAL PDF FORENSIC REPORT EXPORTS
+    // -------------------------------------------------------------------------
+    function exportMasterCsv() {
+      if (!APP.activeCase) return notify("Please open an active case first.", true);
+      notify(`Exporting consolidated Master CSV for case ${APP.activeCase.case_id}...`);
+      window.location.href = `/api/export_all_csv?case_id=${encodeURIComponent(APP.activeCase.case_id)}`;
+    }
+
+    async function generatePdfReport() {
+      if (!APP.activeCase) return notify("Open an active case before generating a PDF report.", true);
+      notify("Building Official CHW MemoryX PDF Forensic Report...");
+
+      try {
+        const [mRes, hRes] = await Promise.all([
+          fetch(`/api/dashboard_metrics?case_id=${encodeURIComponent(APP.activeCase.case_id)}`),
+          fetch(`/api/hashes?case_id=${encodeURIComponent(APP.activeCase.case_id)}`)
+        ]);
+        const mData = await mRes.json();
+        const hData = await hRes.json();
+
+        const c = APP.activeCase;
+        const ev = APP.activeEvidence;
+        const t = (mData && mData.dump_telemetry) ? mData.dump_telemetry : {};
+        const hashes = (hData && hData.hashes) ? hData.hashes : [];
+        const notes = (document.getElementById("repNotes")?.value || "").trim() || c.analyst_notes || "No analyst notes added.";
+        const ipList = Object.values(APP.ipCache);
+        const nowStr = new Date().toISOString().replace("T", " ").slice(0, 19) + " UTC";
+
+        const container = document.getElementById("pdfPrintContainer");
+        container.innerHTML = `
+          <div class="pdf-header">
+            <div>
+              <div class="pdf-title">CHW MemoryX — Official Memory Forensics Report</div>
+              <div class="pdf-sub">Generated: ${escapeHtml(nowStr)} • Engine: Volatility 3</div>
+            </div>
+            <img src="https://iili.io/fU82tG2.png" style="height:44px;" onerror="this.style.display='none'" />
+          </div>
+
+          <div class="pdf-section">
+            <h2>1. Case &amp; Investigation Metadata</h2>
+            <div class="pdf-kv-grid">
+              <div><strong>Case ID:</strong> ${escapeHtml(c.case_id)}</div>
+              <div><strong>Case Name:</strong> ${escapeHtml(c.case_name)}</div>
+              <div><strong>Investigator:</strong> ${escapeHtml(c.investigator)}</div>
+              <div><strong>Reference ID:</strong> ${escapeHtml(c.reference_number || "N/A")}</div>
+              <div><strong>Created At:</strong> ${escapeHtml(c.created_at || "")}</div>
+              <div><strong>Total Verified Runs:</strong> ${APP.rawHistory.filter(r => r.status === "Completed").length}</div>
+            </div>
+          </div>
+
+          <div class="pdf-section">
+            <h2>2. Target Memory Dump Profile</h2>
+            ${ev ? `
+              <div class="pdf-kv-grid">
+                <div><strong>Evidence File:</strong> ${escapeHtml(ev.filename)}</div>
+                <div><strong>File Size:</strong> ${escapeHtml(ev.size_human)}</div>
+                <div><strong>Target OS:</strong> ${escapeHtml(t.target_os || ev.detected_os)} (${escapeHtml(t.os_confidence || ev.os_confidence || "")})</div>
+                <div><strong>Architecture:</strong> ${escapeHtml(t.target_arch || "Unknown")}</div>
+                <div><strong>Kernel / Build:</strong> ${escapeHtml(t.kernel_version || "N/A")}</div>
+                <div><strong>Capture Time:</strong> ${escapeHtml(t.capture_time || "N/A")}</div>
+                <div><strong>Target RAM Usage:</strong> ${t.dump_ram_used_gb || 0} / ${t.dump_ram_total_gb || 0} GB (${t.dump_ram_percent || 0}%)</div>
+                <div><strong>Target CPU Activity:</strong> ${t.dump_cpu_load_percent || 0}% (${escapeHtml(t.dump_cpu_note || "")})</div>
+              </div>
+              <div style="margin-top:6px; font-size:8.5pt; font-family:Consolas, monospace;"><strong>Evidence SHA-256:</strong> ${escapeHtml(ev.sha256)}</div>
+            ` : `<div>No evidence image selected.</div>`}
+          </div>
+
+          ${(t.top_processes && t.top_processes.length) ? `
+            <div class="pdf-section">
+              <h2>3. Top Active Target Processes (at Dump Capture)</h2>
+              <table class="pdf-table">
+                <thead><tr><th>PID</th><th>Process Name</th><th>Threads</th><th>Handles</th></tr></thead>
+                <tbody>
+                  ${t.top_processes.map(p => `<tr><td>${escapeHtml(p.pid)}</td><td>${escapeHtml(p.name)}</td><td>${p.threads || 0}</td><td>${p.handles || 0}</td></tr>`).join("")}
+                </tbody>
+              </table>
+            </div>
+          ` : ""}
+
+          ${ipList.length ? `
+            <div class="pdf-section">
+              <h2>4. Enriched External IPv4 / IPv6 Intelligence</h2>
+              <table class="pdf-table">
+                <thead><tr><th>IP Address</th><th>Type</th><th>Country / City</th><th>ISP / Provider</th><th>ASN</th></tr></thead>
+                <tbody>
+                  ${ipList.map(ip => `<tr><td>${escapeHtml(ip.ip)}</td><td>${escapeHtml(ip.version)}</td><td>${escapeHtml([ip.city, ip.region, ip.country].filter(Boolean).join(", "))}</td><td>${escapeHtml(ip.isp || ip.org || "-")}</td><td>${escapeHtml(ip.asn || "-")}</td></tr>`).join("")}
+                </tbody>
+              </table>
+            </div>
+          ` : ""}
+
+          <div class="pdf-section">
+            <h2>${ipList.length ? "5" : "4"}. Executed Forensic Commands &amp; Audit Trail</h2>
+            <table class="pdf-table">
+              <thead><tr><th>Plugin</th><th>Run ID</th><th>Status</th><th>Rows</th><th>Duration</th><th>Timestamp</th></tr></thead>
+              <tbody>
+                ${APP.rawHistory.length ? APP.rawHistory.slice(0, 40).map(r => `
+                  <tr>
+                    <td>${escapeHtml(r.plugin)}</td>
+                    <td>${escapeHtml(r.run_id)}</td>
+                    <td>${escapeHtml(r.status)}</td>
+                    <td>${r.row_count || 0}</td>
+                    <td>${r.duration_seconds || 0}s</td>
+                    <td>${escapeHtml((r.started_at || "").slice(0, 19).replace("T", " "))}</td>
+                  </tr>
+                `).join("") : `<tr><td colspan="6">No commands executed yet.</td></tr>`}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pdf-section">
+            <h2>${ipList.length ? "6" : "5"}. Cryptographic Integrity Registry (SHA-256)</h2>
+            <table class="pdf-table">
+              <thead><tr><th>Category</th><th>Filename</th><th>Size</th><th>SHA-256</th></tr></thead>
+              <tbody>
+                ${hashes.length ? hashes.slice(0, 30).map(h => `
+                  <tr><td>${escapeHtml(h.category)}</td><td>${escapeHtml(h.filename)}</td><td>${escapeHtml(h.size_human)}</td><td>${escapeHtml(h.sha256)}</td></tr>
+                `).join("") : `<tr><td colspan="4">No hash records available.</td></tr>`}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pdf-section">
+            <h2>${ipList.length ? "7" : "6"}. Investigator Findings &amp; Analyst Notes</h2>
+            <div style="border:1px solid #cbd5e1; padding:8px 10px; font-size:9.5pt; white-space:pre-wrap;">${escapeHtml(notes)}</div>
+          </div>
+
+          <div class="pdf-footer">CHW MemoryX Forensic Workstation • Chain-of-Custody Verified Document</div>
+        `;
+
+        setTimeout(() => window.print(), 200);
+      } catch (err) {
+        notify("Failed generating PDF report: " + err.message, true);
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // TARGET DUMP TELEMETRY & DATA SYNCHRONIZATION
+    // -------------------------------------------------------------------------
+    async function syncEverything() {
+      try {
+        const res = await fetch("/api/status");
+        const data = await res.json();
+        if (!data.ok) return;
+
+        APP.activeCase = data.active_case;
+        APP.activeEvidence = data.active_evidence;
+        APP.detectedOs = (data.active_evidence && data.active_evidence.detected_os)
+          ? data.active_evidence.detected_os
+          : (data.detected_os || "Unknown");
+
+        if (data.theme) document.documentElement.setAttribute("data-theme", data.theme);
+
+        document.getElementById("headerEvidenceName").textContent = APP.activeEvidence ? APP.activeEvidence.filename : "NONE";
+        document.getElementById("headerDetectedOsBadge").textContent = APP.activeEvidence ? `TARGET: ${APP.detectedOs.toUpperCase()}` : "NO DUMP";
+
+        const runningCount = Number(data.running_jobs || 0);
+        const jobsBadge = document.getElementById("headerJobsBadge");
+        if (runningCount > 0) {
+          jobsBadge.style.display = "inline-flex";
+          const activeNames = (data.active_jobs_list || []).map(j => j.plugin).slice(0, 2).join(", ");
+          document.getElementById("headerJobsText").textContent = `${runningCount} Running${activeNames ? ": " + activeNames : ""}`;
+        } else {
+          jobsBadge.style.display = "none";
+        }
+
+        const mRes = await fetch("/api/dashboard_metrics");
+        const mData = await mRes.json();
+        if (mData.ok) {
+          APP.lastTelemetry = mData.dump_telemetry;
+          renderTargetDumpDashboard(mData.dump_telemetry, APP.activeEvidence);
+        }
+
+        APP.verifiedRuns = {};
+        APP.rawHistory = [];
+        if (APP.activeCase) {
+          const hRes = await fetch(`/api/history?case_id=${encodeURIComponent(APP.activeCase.case_id)}`);
+          const hData = await hRes.json();
+          if (hData.ok && Array.isArray(hData.history)) {
+            APP.rawHistory = hData.history;
+            hData.history.forEach(r => {
+              if (r.status === "Completed") {
+                const k1 = (r.plugin || "").toLowerCase();
+                const k2 = (r.resolved_plugin || "").toLowerCase();
+                if (k1 && !APP.verifiedRuns[k1]) APP.verifiedRuns[k1] = r;
+                if (k2 && !APP.verifiedRuns[k2]) APP.verifiedRuns[k2] = r;
+              }
+            });
+          }
+        }
+
+        const verifiedCount = APP.rawHistory.filter(r => r.status === "Completed").length;
+        document.getElementById("dashCaseName").textContent = APP.activeCase ? APP.activeCase.case_id : "None";
+        document.getElementById("dashVerifiedSub").textContent = `${verifiedCount} verified runs saved`;
+
+        renderActiveCaseSummary();
+        renderEvidenceTable();
+        renderOsModuleCards();
+        renderDashboardVerifiedTable();
+        renderHistoryTable();
+      } catch (err) {
+        console.error("Sync error:", err);
+      }
+    }
+
+    function renderTargetDumpDashboard(t, ev) {
+      if (!t || !t.has_evidence) {
+        document.getElementById("dashDetectedOs").textContent = "Waiting Image";
+        document.getElementById("dashTargetArch").textContent = "Architecture: Unknown";
+        document.getElementById("dashDumpRamSize").textContent = "0 GB";
+        document.getElementById("dashDumpRamSub").textContent = "0% Active Physical Pages";
+        document.getElementById("dashActiveProcs").textContent = "0";
+        document.getElementById("dashThreadsSub").textContent = "0 Threads • 0 Handles";
+        document.getElementById("dashTargetOsBadge").textContent = "No Dump";
+        document.getElementById("dashCpuPct").textContent = "0%";
+        document.getElementById("dashCpuBar").style.width = "0%";
+        document.getElementById("dashCpuNote").textContent = "Upload or select a memory dump to inspect target CPU & thread activity.";
+        document.getElementById("dashRamLabel").textContent = "0 / 0 GB (0%)";
+        document.getElementById("dashRamBar").style.width = "0%";
+        document.getElementById("dashRamSource").textContent = "Source: Waiting for target dump";
+        document.getElementById("dashSwapLabel").textContent = "0%";
+        document.getElementById("dashSwapBar").style.width = "0%";
+        document.getElementById("dashThreatSub").textContent = "Network Sockets: 0 • Malfind Hits: 0";
+        document.getElementById("dashSysDetailsBox").innerHTML =
+          "Upload or select a RAM dump. Target OS, Kernel Build, CPU Cores, Architecture, and Capture Timestamp will be extracted directly from the memory image.";
+        document.getElementById("dashTopProcsBody").innerHTML = `<tr><td colspan="4">No memory dump loaded.</td></tr>`;
+        return;
+      }
+
+      document.getElementById("dashDetectedOs").textContent = t.target_os || "Unknown";
+      document.getElementById("dashTargetArch").textContent = `Arch: ${t.target_arch || "Unknown"} • Cores: ${t.target_cpu_cores || "?"}`;
+      document.getElementById("dashDumpRamSize").textContent = `${t.dump_ram_total_gb} GB`;
+      document.getElementById("dashDumpRamSub").textContent = `${t.dump_ram_used_gb} GB active (${t.dump_ram_percent}%)`;
+      document.getElementById("dashActiveProcs").textContent = String(t.active_processes || 0);
+      document.getElementById("dashThreadsSub").textContent =
+        `${(t.total_threads || 0).toLocaleString()} Threads • ${(t.total_handles || 0).toLocaleString()} Handles`;
+      document.getElementById("dashTargetOsBadge").textContent = `${t.target_os} Dump (${t.os_confidence})`;
+
+      const cpuPct = Math.min(100, Number(t.dump_cpu_load_percent || 0));
+      document.getElementById("dashCpuPct").textContent = `${cpuPct}%`;
+      document.getElementById("dashCpuBar").style.width = `${cpuPct}%`;
+      document.getElementById("dashCpuNote").textContent = t.dump_cpu_note || "";
+
+      const ramPct = Math.min(100, Number(t.dump_ram_percent || 0));
+      document.getElementById("dashRamLabel").textContent = `${t.dump_ram_used_gb} / ${t.dump_ram_total_gb} GB (${ramPct}%)`;
+      document.getElementById("dashRamBar").style.width = `${ramPct}%`;
+      document.getElementById("dashRamSource").textContent = `Source: ${t.dump_ram_source}`;
+
+      const swapPct = Math.min(100, Number(t.dump_ram_swapped_percent || 0));
+      document.getElementById("dashSwapLabel").textContent = `${swapPct}%`;
+      document.getElementById("dashSwapBar").style.width = `${swapPct}%`;
+      document.getElementById("dashThreatSub").textContent =
+        `Terminated Procs: ${t.terminated_processes || 0} • Network Sockets: ${t.network_connections || 0} • Malfind Hits: ${t.malfind_hits || 0}`;
+
+      const box = document.getElementById("dashSysDetailsBox");
+      let html = `<div><strong>Dump File:</strong> ${escapeHtml(t.evidence_filename)} (${escapeHtml(ev ? ev.size_human : "")})</div>`;
+      html += `<div><strong>Target OS:</strong> <span class="badge badge-emerald">${escapeHtml(t.target_os)}</span> (${escapeHtml(t.os_confidence)})</div>`;
+      html += `<div><strong>Kernel / Build:</strong> ${escapeHtml(t.kernel_version)}</div>`;
+      html += `<div><strong>Architecture:</strong> ${escapeHtml(t.target_arch)} &nbsp;|&nbsp; <strong>Target CPU Cores:</strong> ${t.target_cpu_cores || "Detecting..."}</div>`;
+      html += `<div><strong>Capture Time (UTC):</strong> ${escapeHtml(t.capture_time)}</div>`;
+      if (ev && ev.sha256) html += `<div><strong>SHA-256:</strong> ${escapeHtml(ev.sha256)}</div>`;
+      const det = t.system_details || {};
+      const keys = Object.keys(det);
+      if (keys.length) {
+        html += `<div style="margin-top:6px; border-top:1px solid var(--border); padding-top:6px;">`;
+        keys.forEach(k => { html += `<div><span style="color:var(--primary);">${escapeHtml(k)}:</span> ${escapeHtml(det[k])}</div>`; });
+        html += `</div>`;
+      }
+      box.innerHTML = html;
+
+      const topBody = document.getElementById("dashTopProcsBody");
+      const topProcs = t.top_processes || [];
+      topBody.innerHTML = topProcs.length
+        ? topProcs.map(p => `
+            <tr>
+              <td><strong>${escapeHtml(p.pid)}</strong></td>
+              <td>${escapeHtml(p.name)}</td>
+              <td>${Number(p.threads || 0).toLocaleString()}</td>
+              <td>${Number(p.handles || 0).toLocaleString()}</td>
+            </tr>
+          `).join("")
+        : `<tr><td colspan="4">Waiting for <code>pslist</code> results from the target memory dump...</td></tr>`;
+    }
+
+    async function reprobeActiveEvidenceOs() {
+      if (!APP.activeCase || !APP.activeEvidence) return notify("Select an active memory dump first.", true);
+      notify("Re-probing target memory dump OS & kernel profile...");
+      const res = await fetch("/api/evidence/reprobe_os", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          case_id: APP.activeCase.case_id,
+          evidence_id: APP.activeEvidence.evidence_id
+        })
+      });
+      const data = await res.json();
+      if (!data.ok) return notify(data.error || "Re-probe failed", true);
+      notify(`Target OS detected: ${data.evidence.detected_os} (${data.evidence.os_confidence})`);
+      await syncEverything();
+    }
+
+    // -------------------------------------------------------------------------
+    // SILENT BACKGROUND JOB POLLER
+    // -------------------------------------------------------------------------
+    async function pollBackgroundJobs() {
+      if (!APP.activeCase) return;
+      try {
+        const res = await fetch(`/api/jobs?case_id=${encodeURIComponent(APP.activeCase.case_id)}`);
+        const data = await res.json();
+        if (!data.ok) return;
+
+        const jobs = data.jobs || [];
+        const running = jobs.filter(j => j.status === "Pending" || j.status === "Running");
+        const badge = document.getElementById("headerJobsBadge");
+
+        if (running.length > 0) {
+          badge.style.display = "inline-flex";
+          const names = running.map(j => j.plugin).slice(0, 2).join(", ");
+          document.getElementById("headerJobsText").textContent = `${running.length} Running: ${names}`;
+        } else {
+          badge.style.display = "none";
+        }
+
+        let newlyFinished = false;
+        jobs.forEach(j => {
+          if ((j.status === "Completed" || j.status === "Failed") && !APP.knownCompletedJobs.has(j.job_id)) {
+            APP.knownCompletedJobs.add(j.job_id);
+            if (APP.lastRunningCount > 0) {
+              newlyFinished = true;
+              if (j.status === "Completed") notify(`Completed: ${j.plugin} (${j.run_id})`);
+              else notify(`Failed: ${j.plugin} (${j.run_id})`, true);
+            }
+          }
+        });
+
+        if (newlyFinished || (APP.lastRunningCount > 0 && running.length === 0)) {
+          await syncEverything();
+        }
+        APP.lastRunningCount = running.length;
+      } catch (e) {}
+    }
+
+    // -------------------------------------------------------------------------
+    // OS-AWARE MODULE CARDS & SMART EXECUTION
+    // -------------------------------------------------------------------------
+    function findSavedRun(pluginName) {
+      if (!pluginName) return null;
+      const l = pluginName.toLowerCase();
+      if (APP.verifiedRuns[l]) return APP.verifiedRuns[l];
+      for (const [k, r] of Object.entries(APP.verifiedRuns)) {
+        if (k === l || k.startsWith(l + ".") || l.startsWith(k + ".")) return r;
+      }
+      return null;
+    }
+
+    function renderOsModuleCards() {
+      const targetOs = APP.detectedOs === "Linux" ? "Linux" : (APP.detectedOs === "macOS" ? "macOS" : "Windows");
+      const catalog = OS_MODULE_DEFINITIONS[targetOs] || OS_MODULE_DEFINITIONS["Windows"];
+
+      Object.entries(catalog).forEach(([gridId, items]) => {
+        const box = document.getElementById(gridId);
+        if (!box) return;
+        box.innerHTML = "";
+
+        if (!items || !items.length) {
+          box.innerHTML = `<div style="grid-column:1/-1; padding:18px; color:var(--text-sub);">No ${gridId.replace("grid-", "")} plugins apply to ${escapeHtml(targetOs)} memory dumps.</div>`;
+          return;
+        }
+
+        items.forEach(item => {
+          const saved = findSavedRun(item.plugin);
+          const card = document.createElement("div");
+          card.className = "plugin-card" + (saved ? " saved" : "");
+
+          if (saved) {
+            const folder = saved.plugin.replace(/[^A-Za-z0-9._-]/g, "_");
+            card.innerHTML = `
+              <div>
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:6px;">
+                  <span class="plugin-title">${escapeHtml(item.plugin)}</span>
+                  <span class="badge badge-emerald">Verified (${escapeHtml(saved.run_id)})</span>
+                </div>
+                <p class="plugin-desc">${escapeHtml(item.desc)}</p>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:11px; color:var(--text-sub);">${saved.duration_seconds || 0}s</span>
+                <button class="btn btn-emerald btn-sm" onclick="openStructuredRun('${folder}', '${saved.run_id}')">
+                  <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <span>View Saved Table</span>
+                </button>
+              </div>
+            `;
+          } else {
+            card.innerHTML = `
+              <div>
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:6px;">
+                  <span class="plugin-title">${escapeHtml(item.plugin)}</span>
+                  <span class="badge badge-primary">${escapeHtml(targetOs)}</span>
+                </div>
+                <p class="plugin-desc">${escapeHtml(item.desc)}</p>
+              </div>
+              <div style="display:flex; justify-content:flex-end;">
+                <button class="btn btn-primary btn-sm" onclick="smartRunPlugin('${item.plugin}')">
+                  <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  <span>Execute</span>
+                </button>
+              </div>
+            `;
+          }
+          box.appendChild(card);
+        });
+      });
+    }
+
+    async function smartRunPlugin(pluginName, customArgs = "") {
+      if (!customArgs) {
+        const saved = findSavedRun(pluginName);
+        if (saved) {
+          const folder = saved.plugin.replace(/[^A-Za-z0-9._-]/g, "_");
+          notify(`Loading verified output for ${pluginName} (${saved.run_id})`);
+          return openStructuredRun(folder, saved.run_id);
+        }
+      }
+
+      if (!APP.activeCase) {
+        notify("Open or create a case first.", true);
+        navigate("cases");
+        return;
+      }
+      if (!APP.activeEvidence) {
+        notify("Upload or select a RAM evidence image first.", true);
+        navigate("evidence");
+        return;
+      }
+
+      notify(`Running ${pluginName} in background...`);
+      const res = await fetch("/api/execute", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          case_id: APP.activeCase.case_id,
+          evidence_id: APP.activeEvidence.evidence_id,
+          plugin: pluginName,
+          args: customArgs
+        })
+      });
+      const data = await res.json();
+      if (!data.ok) return notify(data.error || "Failed running command", true);
+
+      APP.lastRunningCount = Math.max(APP.lastRunningCount, 1);
+      await pollBackgroundJobs();
+    }
+
+    // -------------------------------------------------------------------------
+    // INLINE STRUCTURED TABLE + IOC HIGHLIGHT + IP INTEL + PROCESS TREE VIEWER
+    // -------------------------------------------------------------------------
+    async function openStructuredRun(pluginFolder, runId, preferredMode = "table") {
+      if (!APP.activeCase) return;
+      const res = await fetch(`/api/results/view?case_id=${encodeURIComponent(APP.activeCase.case_id)}&plugin=${encodeURIComponent(pluginFolder)}&run_id=${encodeURIComponent(runId)}`);
+      const data = await res.json();
+      if (!data.ok) return notify(data.error || "Cannot load result", true);
+
+      APP.viewer.pluginFolder = pluginFolder;
+      APP.viewer.runId = runId;
+      APP.viewer.rawText = data.stdout || data.stderr || "(Empty output)";
+      APP.viewer.onlyIocs = false;
+      document.getElementById("btnOnlyIocs").classList.remove("active-toggle");
+
+      document.getElementById("structuredViewer").style.display = "block";
+      document.getElementById("viewerTitle").textContent = `${data.plugin} (${data.run_id})`;
+      document.getElementById("viewerMeta").textContent = `Duration: ${data.command_meta?.duration_seconds || 0}s`;
+      document.getElementById("viewerRawPre").textContent = APP.viewer.rawText;
+      document.getElementById("viewerSearchInput").value = "";
+
+      const isProc = isProcessPlugin(pluginFolder);
+      document.getElementById("btnToggleProcessTree").style.display = isProc ? "inline-flex" : "none";
+
+      const st = data.structured;
+      if (st && st.parsed && Array.isArray(st.rows) && st.rows.length) {
+        APP.viewer.columns = st.columns;
+        APP.viewer.allRows = st.rows;
+        APP.viewer.rowMeta = new WeakMap();
+
+        // Pre-scan all rows for IOCs and External Public IPv4/IPv6
+        let critCount = 0;
+        let warnCount = 0;
+        const extIpSet = new Set();
+        st.rows.forEach(row => {
+          const evalRes = evaluateRowIoc(row, pluginFolder);
+          APP.viewer.rowMeta.set(row, evalRes);
+          if (evalRes.severity === "crit") critCount++;
+          else if (evalRes.severity === "warn") warnCount++;
+          evalRes.externalIps.forEach(ip => extIpSet.add(ip));
+        });
+
+        APP.viewer.visibleExternalIps = Array.from(extIpSet);
+        document.getElementById("iocCritCount").textContent = `${critCount} Critical`;
+        document.getElementById("iocWarnCount").textContent = `${warnCount} Warnings`;
+        document.getElementById("iocExtIpCount").textContent = `${extIpSet.size} External IPs`;
+        document.getElementById("btnLookupAllIps").style.display = extIpSet.size > 0 ? "inline-flex" : "none";
+        document.getElementById("viewerIocStrip").style.display = (critCount > 0 || warnCount > 0 || extIpSet.size > 0) ? "flex" : "none";
+
+        APP.viewer.filteredRows = st.rows.slice();
+        APP.viewer.page = 1;
+
+        if (preferredMode === "tree" && isProc) {
+          setViewerMode("tree");
+          renderVisualProcessTree();
+        } else {
+          setViewerMode("table");
+          renderTableRows();
+        }
+      } else {
+        document.getElementById("viewerIocStrip").style.display = "none";
+        setViewerMode("raw");
+      }
+
+      document.getElementById("structuredViewer").scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function setViewerMode(mode) {
+      APP.viewer.mode = mode;
+      document.getElementById("viewerTableWrap").style.display = mode === "table" ? "block" : "none";
+      document.getElementById("viewerTreeWrap").style.display = mode === "tree" ? "block" : "none";
+      document.getElementById("viewerRawWrap").style.display = mode === "raw" ? "block" : "none";
+      document.getElementById("btnToggleTableRaw").textContent = mode === "raw" ? "View Table" : "View Raw";
+      document.getElementById("btnToggleProcessTree").textContent = mode === "tree" ? "Table View" : "Visual Tree";
+    }
+
+    function toggleViewerTableRaw() {
+      setViewerMode(APP.viewer.mode === "raw" ? "table" : "raw");
+      if (APP.viewer.mode === "table") renderTableRows();
+    }
+
+    function toggleVisualProcessTreeMode() {
+      if (APP.viewer.mode === "tree") {
+        setViewerMode("table");
+        renderTableRows();
+      } else {
+        setViewerMode("tree");
+        renderVisualProcessTree();
+      }
+    }
+
+    function toggleIocFilter() {
+      APP.viewer.onlyIocs = !APP.viewer.onlyIocs;
+      document.getElementById("btnOnlyIocs").classList.toggle("active-toggle", APP.viewer.onlyIocs);
+      applyViewerFilter();
+    }
+
+    function closeViewer() { document.getElementById("structuredViewer").style.display = "none"; }
+
+    function renderTableRows() {
+      const table = document.getElementById("mainTable");
+      const thead = table.querySelector("thead");
+      const tbody = table.querySelector("tbody");
+      thead.innerHTML = "";
+      tbody.innerHTML = "";
+
+      const { columns, filteredRows, page, pageSize } = APP.viewer;
+      document.getElementById("viewerRowCount").textContent = `${filteredRows.length} Rows`;
+
+      if (!columns.length || !filteredRows.length) {
+        tbody.innerHTML = `<tr><td style="padding:16px;">No records match your filter.</td></tr>`;
+        return;
+      }
+
+      // Sticky Headers + Auto IOC Status Column
+      const trH = document.createElement("tr");
+      const thIoc = document.createElement("th");
+      thIoc.textContent = "IOC / Intel";
+      thIoc.style.cursor = "default";
+      trH.appendChild(thIoc);
+
+      columns.forEach(col => {
+        const th = document.createElement("th");
+        th.textContent = col;
+        th.title = `Sort by ${col}`;
+        th.onclick = () => sortTableBy(col);
+        trH.appendChild(th);
+      });
+      thead.appendChild(trH);
+
+      const totalPages = Math.max(1, Math.ceil(filteredRows.length / pageSize));
+      document.getElementById("viewerPageLabel").textContent = `Page ${page} / ${totalPages}`;
+      const slice = filteredRows.slice((page - 1) * pageSize, page * pageSize);
+
+      slice.forEach(r => {
+        const tr = document.createElement("tr");
+        const meta = APP.viewer.rowMeta.get(r) || { severity: "none", reasons: [], externalIps: [] };
+        if (meta.severity === "crit") tr.className = "ioc-crit";
+        else if (meta.severity === "warn") tr.className = "ioc-warn";
+
+        const tdIoc = document.createElement("td");
+        if (meta.severity === "crit") {
+          tdIoc.innerHTML = `<span class="badge badge-rose" title="${escapeHtml(meta.reasons.join(" • "))}">CRITICAL</span>`;
+        } else if (meta.severity === "warn") {
+          tdIoc.innerHTML = `<span class="badge badge-amber" title="${escapeHtml(meta.reasons.join(" • "))}">WARNING</span>`;
+        } else if (meta.externalIps.length) {
+          tdIoc.innerHTML = `<span class="badge badge-cyan">EXT IP</span>`;
+        } else {
+          tdIoc.innerHTML = `<span style="color:var(--text-muted); font-size:10.5px;">OK</span>`;
+        }
+        tr.appendChild(tdIoc);
+
+        columns.forEach(c => {
+          const td = document.createElement("td");
+          const val = r[c] !== undefined ? r[c] : "";
+          td.innerHTML = renderCellWithExternalIps(val);
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+    }
+
+    function applyViewerFilter() {
+      const q = (document.getElementById("viewerSearchInput").value || "").toLowerCase();
+      APP.viewer.filteredRows = APP.viewer.allRows.filter(r => {
+        if (APP.viewer.onlyIocs) {
+          const meta = APP.viewer.rowMeta.get(r);
+          if (!meta || (meta.severity === "none" && !meta.externalIps.length)) return false;
+        }
+        if (!q) return true;
+        return Object.values(r).some(v => String(v).toLowerCase().includes(q));
+      });
+      APP.viewer.page = 1;
+      renderTableRows();
+    }
+
+    function sortTableBy(col) {
+      const v = APP.viewer;
+      if (v.sortCol === col) v.sortAsc = !v.sortAsc;
+      else { v.sortCol = col; v.sortAsc = true; }
+      v.filteredRows.sort((a, b) => {
+        const va = String(a[col] || "");
+        const vb = String(b[col] || "");
+        return v.sortAsc
+          ? va.localeCompare(vb, undefined, { numeric: true })
+          : vb.localeCompare(va, undefined, { numeric: true });
+      });
+      renderTableRows();
+    }
+
+    function changeViewerPage(d) {
+      const v = APP.viewer;
+      const total = Math.max(1, Math.ceil(v.filteredRows.length / v.pageSize));
+      v.page = Math.max(1, Math.min(total, v.page + d));
+      renderTableRows();
+    }
+
+    function downloadCurrentRunCsv() {
+      if (!APP.activeCase || !APP.viewer.pluginFolder || !APP.viewer.runId) return;
+      window.location.href = `/api/results/csv?case_id=${encodeURIComponent(APP.activeCase.case_id)}&plugin=${encodeURIComponent(APP.viewer.pluginFolder)}&run_id=${encodeURIComponent(APP.viewer.runId)}`;
+    }
+
+    // -------------------------------------------------------------------------
+    // CHW MEMORYX AI ASSISTANT
+    // -------------------------------------------------------------------------
+    function renderAiWelcome() {
+      return `
+        <div class="ai-msg assistant">
+          ${renderMarkdown(
+            "**नमस्ते / Hello Investigator!** मैं आपका **CHW MemoryX AI Forensic Assistant** हूँ।\n\n" +
+            "- आप **हिंदी**, **Hinglish**, या **English** जिस भाषा में पूछेंगे, मैं उसी भाषा में जवाब दूँगा।\n" +
+            "- मैं आपकी पिछली **5 बातचीत (5-turn context)** का बैकअप रखता हूँ ताकि follow-up सवालों का सही संदर्भ दे सकूँ।\n" +
+            "- मेमोरी डंप के रिज़ल्ट्स को **bold**, *italics*, और **Markdown Tables** के साथ समझाऊँगा।"
+          )}
+        </div>
+      `;
+    }
+
+    function appendAiMessage(role, text, isTemp = false) {
+      const body = document.getElementById("aiChatBody");
+      const msg = document.createElement("div");
+      msg.className = "ai-msg " + role;
+      if (isTemp) msg.setAttribute("data-temp", "1");
+      if (role === "assistant") msg.innerHTML = renderMarkdown(text);
+      else msg.textContent = text;
+      body.appendChild(msg);
+      body.scrollTop = body.scrollHeight;
+      return msg;
+    }
+
+    async function loadAiHistoryFromServer() {
+      try {
+        const cid = APP.activeCase ? APP.activeCase.case_id : "";
+        const res = await fetch(`/api/ai/history${cid ? "?case_id=" + encodeURIComponent(cid) : ""}`);
+        const data = await res.json();
+        const body = document.getElementById("aiChatBody");
+        body.innerHTML = renderAiWelcome();
+        if (data.ok && Array.isArray(data.messages)) {
+          APP.aiHistory = data.messages;
+          data.messages.forEach(m => appendAiMessage(m.role, m.content));
+          const turns = Math.floor(data.messages.length / 2);
+          document.getElementById("aiContextBadge").textContent =
+            `Context Backup: ${turns}/${data.max_turns || 5} Turns • Auto-Language`;
+        }
+      } catch (e) {}
+    }
+
+    async function clearAiChat() {
+      const cid = APP.activeCase ? APP.activeCase.case_id : "";
+      await fetch("/api/ai/clear", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ case_id: cid })
+      });
+      APP.aiHistory = [];
+      document.getElementById("aiChatBody").innerHTML = renderAiWelcome();
+      document.getElementById("aiContextBadge").textContent = "Context Backup: 0/5 Turns • Auto-Language";
+      notify("AI conversation context cleared.");
+    }
+
+    async function sendAiMessage(customPrompt = "") {
+      const input = document.getElementById("aiUserPrompt");
+      const text = (customPrompt || input.value).trim();
+      if (!text) return;
+      if (!customPrompt) input.value = "";
+
+      appendAiMessage("user", text);
+      const waitingEl = appendAiMessage("assistant", "_Analyzing target memory dump context with CHW MemoryX AI..._", true);
+
+      try {
+        const res = await fetch("/api/ai/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            case_id: APP.activeCase ? APP.activeCase.case_id : null,
+            evidence_id: APP.activeEvidence ? APP.activeEvidence.evidence_id : null,
+            prompt: text,
+            context_title: APP.viewer.pluginFolder ? `${APP.viewer.pluginFolder} (${APP.viewer.runId})` : "Target Memory Dump Overview",
+            context_output: APP.viewer.rawText || "",
+            history: APP.aiHistory.slice(-10)
+          })
+        });
+        const data = await res.json();
+        if (waitingEl && waitingEl.parentNode) waitingEl.parentNode.removeChild(waitingEl);
+
+        if (data.ok) {
+          appendAiMessage("assistant", data.reply);
+          APP.aiHistory.push({ role: "user", content: text }, { role: "assistant", content: data.reply });
+          if (APP.aiHistory.length > 10) APP.aiHistory = APP.aiHistory.slice(-10);
+          const turns = Math.floor((data.history_count || APP.aiHistory.length) / 2);
+          document.getElementById("aiContextBadge").textContent = `Context Backup: ${turns}/5 Turns • Auto-Language`;
+        } else {
+          appendAiMessage("assistant", `**CHW AI Error:** ${data.error || "Service unavailable."}`);
+        }
+      } catch (err) {
+        if (waitingEl && waitingEl.parentNode) waitingEl.parentNode.removeChild(waitingEl);
+        appendAiMessage("assistant", "**Network Error:** Unable to contact CHW AI service.");
+      }
+    }
+
+    function sendAiPrePrompt(promptText) { sendAiMessage(promptText); }
+    function askAiToInspectCurrentResult() {
+      toggleAiDrawer(true);
+      sendAiMessage(`Analyze this ${APP.viewer.pluginFolder} output. Highlight suspicious findings or malware risks in a Markdown table, and suggest next steps.`);
+    }
+    function askAiToInspectSystem() {
+      toggleAiDrawer(true);
+      sendAiMessage("Inspect the target memory dump's OS, kernel version, CPU/thread load, and physical RAM utilization. Summarize the profile in a clean Markdown table.");
+    }
+
+    // -------------------------------------------------------------------------
+    // CASE MANAGER FUNCTIONS
+    // -------------------------------------------------------------------------
+    async function loadCaseManager() {
+      const res = await fetch("/api/cases");
+      const data = await res.json();
+      if (!data.ok) return;
+
+      const topSel = document.getElementById("headerCaseSelect");
+      const mgrSel = document.getElementById("caseManagerSelect");
+      topSel.innerHTML = `<option value="">-- Choose Case --</option>`;
+      mgrSel.innerHTML = `<option value="">-- Choose Case --</option>`;
+
+      data.cases.forEach(c => {
+        const isCur = data.active_case_id === c.case_id;
+        topSel.appendChild(new Option(`${c.case_id} (${c.case_name})`, c.case_id, isCur, isCur));
+        mgrSel.appendChild(new Option(`${c.case_id} — ${c.case_name}`, c.case_id, isCur, isCur));
+      });
+
+      const tbody = document.getElementById("allCasesTableBody");
+      tbody.innerHTML = "";
+      if (!data.cases.length) {
+        tbody.innerHTML = `<tr><td colspan="7">No cases created yet.</td></tr>`;
+        return;
+      }
+      data.cases.forEach(c => {
+        const isCur = data.active_case_id === c.case_id;
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><strong>${escapeHtml(c.case_id)}</strong> ${isCur ? '<span class="badge badge-emerald">OPEN</span>' : ''}</td>
+          <td>${escapeHtml(c.case_name)}</td>
+          <td>${escapeHtml(c.investigator)}</td>
+          <td>${c.stats ? c.stats.evidence_count : 0}</td>
+          <td>${c.stats ? c.stats.command_runs : 0}</td>
+          <td>${escapeHtml((c.created_at || "").slice(0, 16).replace("T", " "))}</td>
+          <td><button class="btn ${isCur ? "btn-emerald" : "btn-primary"} btn-sm" onclick="switchCase('${c.case_id}')">${isCur ? "Active" : "Open"}</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function switchCase(caseId) {
+      if (!caseId) return closeActiveCase();
+      const res = await fetch("/api/cases/activate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ case_id: caseId })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        closeViewer();
+        APP.knownCompletedJobs.clear();
+        notify(`Opened case ${caseId}`);
+        await syncEverything();
+        await loadCaseManager();
+        await loadAiHistoryFromServer();
+      }
+    }
+    function switchCaseFromHeader(id) { switchCase(id); }
+    function openCaseFromSelect() { switchCase(document.getElementById("caseManagerSelect").value); }
+
+    async function closeActiveCase() {
+      await fetch("/api/cases/close", { method: "POST" });
+      closeViewer();
+      notify("Case session closed.");
+      await syncEverything();
+      await loadCaseManager();
+    }
+
+    async function handleCreateCase(e) {
+      e.preventDefault();
+      const payload = {
+        case_id: document.getElementById("newCaseId").value.trim(),
+        case_name: document.getElementById("newCaseName").value.trim(),
+        investigator: document.getElementById("newCaseInv").value.trim(),
+        reference_number: document.getElementById("newCaseRef").value.trim(),
+        description: document.getElementById("newCaseDesc").value.trim()
+      };
+      const res = await fetch("/api/cases", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!data.ok) return notify(data.error, true);
+      document.getElementById("newCaseId").value = "";
+      notify(`Case ${data.case.case_id} created.`);
+      await syncEverything();
+      await loadCaseManager();
+      await loadAiHistoryFromServer();
+    }
+
+    function renderActiveCaseSummary() {
+      const box = document.getElementById("activeCaseDetailCard");
+      if (!APP.activeCase) {
+        box.innerHTML = "No case active. Select or create one above.";
+        return;
+      }
+      box.innerHTML = `
+        <div><strong>Case:</strong> ${escapeHtml(APP.activeCase.case_id)} (${escapeHtml(APP.activeCase.case_name)})</div>
+        <div><strong>Investigator:</strong> ${escapeHtml(APP.activeCase.investigator)}</div>
+        <div><strong>Directory:</strong> <code>${escapeHtml(APP.activeCase.case_directory)}</code></div>
+      `;
+    }
+
+    // -------------------------------------------------------------------------
+    // EVIDENCE UPLOAD & LOCAL REGISTRATION
+    // -------------------------------------------------------------------------
+    function initDropzone() {
+      const dz = document.getElementById("ramDropzone");
+      if (!dz) return;
+      ["dragenter", "dragover"].forEach(evName => {
+        dz.addEventListener(evName, e => { e.preventDefault(); dz.classList.add("dragover"); });
+      });
+      ["dragleave", "drop"].forEach(evName => {
+        dz.addEventListener(evName, e => { e.preventDefault(); dz.classList.remove("dragover"); });
+      });
+      dz.addEventListener("drop", e => {
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) uploadEvidence(e.dataTransfer.files);
+      });
+    }
+
+    async function uploadEvidence(files) {
+      if (!files || !files.length) return;
+      if (!APP.activeCase) {
+        notify("Open a case first.", true);
+        navigate("cases");
+        return;
+      }
+      const file = files[0];
+      const chunkSize = 8 * 1024 * 1024;
+      const notes = document.getElementById("uploadNotes").value.trim();
+
+      const wrap = document.getElementById("uploadProgressWrap");
+      const bar = document.getElementById("uploadBar");
+      const pct = document.getElementById("uploadPct");
+      const lbl = document.getElementById("uploadLabel");
+
+      wrap.style.display = "block";
+      bar.style.width = "0%";
+      lbl.textContent = `Streaming ${file.name}...`;
+
+      try {
+        const initRes = await fetch("/api/evidence/upload_init", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ case_id: APP.activeCase.case_id, filename: file.name, total_size: file.size, notes })
+        });
+        const init = await initRes.json();
+        if (!init.ok) throw new Error(init.error);
+
+        let offset = 0;
+        while (offset < file.size) {
+          const chunk = file.slice(offset, offset + chunkSize);
+          const form = new FormData();
+          form.append("case_id", APP.activeCase.case_id);
+          form.append("upload_id", init.upload_id);
+          form.append("chunk", chunk, file.name);
+
+          const cRes = await fetch("/api/evidence/upload_chunk", { method: "POST", body: form });
+          const cData = await cRes.json();
+          if (!cData.ok) throw new Error(cData.error);
+
+          offset += chunk.size;
+          const p = Math.min(100, Math.round((offset / file.size) * 100));
+          bar.style.width = p + "%";
+          pct.textContent = p + "%";
+        }
+
+        lbl.textContent = "Probing Target Dump OS, Kernel & SHA-256...";
+        const comp = await fetch("/api/evidence/upload_complete", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ case_id: APP.activeCase.case_id, upload_id: init.upload_id })
+        });
+        const compData = await comp.json();
+        if (!compData.ok) throw new Error(compData.error);
+
+        wrap.style.display = "none";
+        APP.lastRunningCount = Math.max(APP.lastRunningCount, (compData.auto_triage_jobs || []).length);
+        notify(`Evidence ready! Target OS: ${compData.evidence.detected_os} (${compData.evidence.os_confidence})`);
+        await syncEverything();
+      } catch (err) {
+        notify(`Upload error: ${err.message}`, true);
+        wrap.style.display = "none";
+      }
+    }
+
+    async function handleRegisterLocal(e) {
+      e.preventDefault();
+      if (!APP.activeCase) return notify("Open a case first.", true);
+      const p = document.getElementById("localPath").value.trim();
+      const n = document.getElementById("localNotes").value.trim();
+      const c = document.getElementById("copyToCaseCheck").checked;
+
+      notify("Hashing memory dump & detecting target OS profile...");
+      const res = await fetch("/api/evidence/register_local", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ case_id: APP.activeCase.case_id, local_path: p, copy_to_case: c, notes: n })
+      });
+      const data = await res.json();
+      if (!data.ok) return notify(data.error, true);
+
+      document.getElementById("localPath").value = "";
+      APP.lastRunningCount = Math.max(APP.lastRunningCount, (data.auto_triage_jobs || []).length);
+      notify(`Registered! Target OS: ${data.evidence.detected_os} (${data.evidence.os_confidence})`);
+      await syncEverything();
+    }
+
+    function renderEvidenceTable() {
+      const tbody = document.getElementById("evidenceListBody");
+      tbody.innerHTML = "";
+      if (!APP.activeCase || !APP.activeCase.evidence || !APP.activeCase.evidence.length) {
+        tbody.innerHTML = `<tr><td colspan="8">No evidence registered in this case.</td></tr>`;
+        return;
+      }
+      const curId = APP.activeEvidence ? APP.activeEvidence.evidence_id : "";
+      APP.activeCase.evidence.forEach(ev => {
+        const isCur = ev.evidence_id === curId;
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><span class="badge ${isCur ? "badge-emerald" : "badge-primary"}">${isCur ? "ACTIVE" : "READY"}</span></td>
+          <td>${escapeHtml(ev.evidence_id)}</td>
+          <td><strong>${escapeHtml(ev.filename)}</strong></td>
+          <td>${escapeHtml(ev.size_human)}</td>
+          <td><span class="badge badge-primary">${escapeHtml(ev.detected_os || "Unknown")}</span></td>
+          <td>${escapeHtml(ev.os_confidence || "-")}</td>
+          <td style="font-size:11px;">${escapeHtml(ev.sha256)}</td>
+          <td><button class="btn ${isCur ? "btn-emerald" : "btn-primary"} btn-sm" onclick="selectEvidence('${ev.evidence_id}')">${isCur ? "In Use" : "Select"}</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function selectEvidence(id) {
+      await fetch("/api/evidence/select", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ evidence_id: id })
+      });
+      await syncEverything();
+    }
+
+    // -------------------------------------------------------------------------
+    // DASHBOARD VERIFIED TABLE & AUDIT HISTORY
+    // -------------------------------------------------------------------------
+    function renderDashboardVerifiedTable() {
+      const tbody = document.getElementById("dashVerifiedTableBody");
+      tbody.innerHTML = "";
+      const completed = APP.rawHistory.filter(r => r.status === "Completed");
+      if (!completed.length) {
+        tbody.innerHTML = `<tr><td colspan="7">No verified command runs saved yet.</td></tr>`;
+        return;
+      }
+      completed.forEach(r => {
+        const f = r.plugin.replace(/[^A-Za-z0-9._-]/g, "_");
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><strong>${escapeHtml(r.plugin)}</strong></td>
+          <td>${escapeHtml(r.run_id)}</td>
+          <td><span class="badge badge-primary">${escapeHtml(APP.detectedOs)}</span></td>
+          <td>${escapeHtml(r.evidence_filename || "-")}</td>
+          <td>${r.duration_seconds || 0}s</td>
+          <td><span class="badge badge-emerald">VERIFIED</span></td>
+          <td><button class="btn btn-emerald btn-sm" onclick="openStructuredRun('${f}', '${r.run_id}')">View Table</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderHistoryTable() {
+      const tbody = document.getElementById("historyTableBody");
+      tbody.innerHTML = "";
+      if (!APP.rawHistory.length) {
+        tbody.innerHTML = `<tr><td colspan="7">No history yet.</td></tr>`;
+        return;
+      }
+      APP.rawHistory.forEach(r => {
+        const f = r.plugin.replace(/[^A-Za-z0-9._-]/g, "_");
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><strong>${escapeHtml(r.plugin)}</strong></td>
+          <td>${escapeHtml(r.run_id)}</td>
+          <td>${escapeHtml((r.arguments || []).join(" ") || "-")}</td>
+          <td><span class="badge ${r.status === "Completed" ? "badge-emerald" : "badge-rose"}">${escapeHtml(r.status)}</span></td>
+          <td>${r.duration_seconds || 0}s</td>
+          <td><a class="btn btn-secondary btn-sm" href="/api/results/csv?case_id=${encodeURIComponent(APP.activeCase.case_id)}&plugin=${encodeURIComponent(f)}&run_id=${encodeURIComponent(r.run_id)}">CSV</a></td>
+          <td><button class="btn btn-emerald btn-sm" onclick="openStructuredRun('${f}', '${r.run_id}')">View</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // -------------------------------------------------------------------------
+    // BROWSER ARTIFACTS CORRELATION
+    // -------------------------------------------------------------------------
+    async function correlateBrowserArtifacts() {
+      if (!APP.activeCase) return;
+      const res = await fetch("/api/browser_artifacts");
+      const data = await res.json();
+      if (!data.ok) return;
+      const a = data.analysis;
+
+      const pT = document.getElementById("browProcTable");
+      pT.innerHTML = a.process_observations.length ? "" : `<tr><td colspan="3">No browser processes found in current outputs.</td></tr>`;
+      a.process_observations.forEach(r => {
+        pT.innerHTML += `<tr><td><strong>${escapeHtml(r.browser_binary)}</strong></td><td><span class="badge badge-primary">${escapeHtml(r.classification)}</span></td><td style="white-space:normal;">${escapeHtml(r.raw_line)}</td></tr>`;
+      });
+
+      const cT = document.getElementById("browCmdTable");
+      cT.innerHTML = a.cmdline_observations.length ? "" : `<tr><td colspan="2">No command lines observed.</td></tr>`;
+      a.cmdline_observations.forEach(r => {
+        cT.innerHTML += `<tr><td><strong>${escapeHtml(r.browser_binary)}</strong></td><td style="white-space:normal;">${renderCellWithExternalIps(r.raw_line)}</td></tr>`;
+      });
+
+      const fT = document.getElementById("browFileTable");
+      fT.innerHTML = a.file_artifacts.length ? "" : `<tr><td colspan="2">No browser file handles observed.</td></tr>`;
+      a.file_artifacts.forEach(r => {
+        fT.innerHTML += `<tr><td><span class="badge badge-emerald">${escapeHtml(r.classification)}</span></td><td style="white-space:normal;">${escapeHtml(r.raw_line)}</td></tr>`;
+      });
+
+      const uT = document.getElementById("browUrlTable");
+      uT.innerHTML = a.url_fragments.length ? "" : `<tr><td colspan="2">No URLs found.</td></tr>`;
+      a.url_fragments.forEach(r => {
+        uT.innerHTML += `<tr><td>${renderCellWithExternalIps(r.url)}</td><td>${escapeHtml(r.source)}</td></tr>`;
+      });
+    }
+
+    // -------------------------------------------------------------------------
+    // PLUGIN EXPLORER & CUSTOM COMMAND DRAWER
+    // -------------------------------------------------------------------------
+    async function renderExplorerTable() {
+      const res = await fetch("/api/plugins");
+      const data = await res.json();
+      if (!data.ok) return;
+
+      const q = (document.getElementById("explorerSearch").value || "").toLowerCase();
+      const tbody = document.getElementById("explorerTableBody");
+      tbody.innerHTML = "";
+
+      const list = data.plugins.filter(p => !q || p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q));
+      list.slice(0, 200).forEach(p => {
+        const saved = findSavedRun(p.name);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><strong>${escapeHtml(p.name)}</strong></td>
+          <td><span class="badge badge-primary">${escapeHtml(p.os)}</span></td>
+          <td>${escapeHtml(p.category)}</td>
+          <td style="white-space:normal;">${escapeHtml(p.description)}</td>
+          <td>
+            ${saved
+              ? `<button class="btn btn-emerald btn-sm" onclick="openStructuredRun('${saved.plugin.replace(/[^A-Za-z0-9._-]/g, "_")}', '${saved.run_id}')">View</button>`
+              : `<button class="btn btn-primary btn-sm" onclick="smartRunPlugin('${p.name}')">Run</button>`
+            }
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function updateDrawerPreview() {
+      const p = document.getElementById("drawerPluginInput").value.trim();
+      const a = document.getElementById("drawerArgsInput").value.trim();
+      const path = APP.activeEvidence ? APP.activeEvidence.path : "/path/to/evidence.mem";
+      document.getElementById("drawerPreviewInput").value = `python3 vol1.py -f "${path}" ${p || "<plugin>"}${a ? " " + a : ""}`;
+
+      const saved = (!a && p) ? findSavedRun(p) : null;
+      document.getElementById("drawerSavedNotice").style.display = saved ? "block" : "none";
+      document.getElementById("drawerExecBtn").style.display = saved ? "none" : "block";
+    }
+
+    function openDrawerSavedRun() {
+      const p = document.getElementById("drawerPluginInput").value.trim();
+      const saved = findSavedRun(p);
+      if (saved) {
+        toggleCmdDrawer(false);
+        openStructuredRun(saved.plugin.replace(/[^A-Za-z0-9._-]/g, "_"), saved.run_id);
+      }
+    }
+
+    function executeFromDrawer() {
+      const p = document.getElementById("drawerPluginInput").value.trim();
+      const a = document.getElementById("drawerArgsInput").value.trim();
+      if (!p) return notify("Enter a plugin name.", true);
+      toggleCmdDrawer(false);
+      smartRunPlugin(p, a);
+    }
+
+    // -------------------------------------------------------------------------
+    // EXTRACTIONS, REPORTS & HASHES
+    // -------------------------------------------------------------------------
+    async function launchExtraction() {
+      if (!APP.activeCase || !APP.activeEvidence) return notify("Active case & evidence required.", true);
+      const plugin = document.getElementById("extPluginSelect").value;
+      const args = document.getElementById("extArgsInput").value.trim();
+      const folder = document.getElementById("extFolderInput").value.trim();
+
+      notify(`Extracting artifacts using ${plugin} in background...`);
+      const res = await fetch("/api/execute", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          case_id: APP.activeCase.case_id,
+          evidence_id: APP.activeEvidence.evidence_id,
+          plugin: plugin,
+          args: args,
+          extraction_mode: true,
+          extraction_subdir: folder
+        })
+      });
+      const data = await res.json();
+      if (!data.ok) return notify(data.error, true);
+      APP.lastRunningCount = Math.max(APP.lastRunningCount, 1);
+      await pollBackgroundJobs();
+    }
+
+    async function loadExtractionList() {
+      const res = await fetch("/api/extractions");
+      const data = await res.json();
+      const tbody = document.getElementById("extractedFilesBody");
+      tbody.innerHTML = "";
+      if (!data.files || !data.files.length) {
+        tbody.innerHTML = `<tr><td colspan="5">No extracted artifacts yet.</td></tr>`;
+        return;
+      }
+      data.files.forEach(f => {
+        tbody.innerHTML += `
+          <tr>
+            <td><strong>${escapeHtml(f.filename)}</strong></td>
+            <td>${escapeHtml(f.subfolder)}</td>
+            <td>${escapeHtml(f.size_human)}</td>
+            <td style="font-size:11px;">${escapeHtml(f.sha256)}</td>
+            <td><a class="btn btn-primary btn-sm" href="/api/extractions/download?path=${encodeURIComponent(f.relative_path)}" target="_blank">Download</a></td>
+          </tr>
+        `;
+      });
+    }
+
+    async function loadReportsAndHashes() {
+      const rRes = await fetch("/api/reports");
+      const rData = await rRes.json();
+      const rBody = document.getElementById("reportsListBody");
+      rBody.innerHTML = "";
+      if (!rData.reports || !rData.reports.length) {
+        rBody.innerHTML = `<tr><td colspan="4">No saved reports yet.</td></tr>`;
+      } else {
+        rData.reports.forEach(r => {
+          rBody.innerHTML += `
+            <tr>
+              <td><strong>${escapeHtml(r.filename)}</strong></td>
+              <td><span class="badge badge-primary">${escapeHtml(r.format)}</span></td>
+              <td>${escapeHtml(r.size_human)}</td>
+              <td><a class="btn btn-primary btn-sm" href="/api/extractions/download?path=${encodeURIComponent(r.relative_path)}" target="_blank">Download</a></td>
+            </tr>
+          `;
+        });
+      }
+
+      const hRes = await fetch("/api/hashes");
+      const hData = await hRes.json();
+      const hBody = document.getElementById("hashesListBody");
+      hBody.innerHTML = "";
+      if (!hData.hashes || !hData.hashes.length) {
+        hBody.innerHTML = `<tr><td colspan="5">No hash records in case.</td></tr>`;
+      } else {
+        hData.hashes.forEach(h => {
+          hBody.innerHTML += `
+            <tr>
+              <td><span class="badge ${h.category === "SOURCE_EVIDENCE" ? "badge-emerald" : "badge-primary"}">${escapeHtml(h.category)}</span></td>
+              <td><strong>${escapeHtml(h.filename)}</strong></td>
+              <td>${escapeHtml(h.size_human)}</td>
+              <td style="font-size:11px;">${escapeHtml(h.sha256)}</td>
+              <td><button class="btn btn-secondary btn-sm" onclick="verifySha('${escapeHtml(h.relative_path)}', '${escapeHtml(h.sha256)}')">Verify</button></td>
+            </tr>
+          `;
+        });
+      }
+    }
+
+    async function generateReport() {
+      if (!APP.activeCase) return notify("Open a case first.", true);
+      const fmt = document.getElementById("repFormat").value;
+      if (fmt === "PDF") return generatePdfReport();
+
+      const res = await fetch("/api/reports/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          report_type: document.getElementById("repScope").value,
+          format: fmt,
+          analyst_notes: document.getElementById("repNotes").value.trim()
+        })
+      });
+      const data = await res.json();
+      if (!data.ok) return notify(data.error, true);
+      notify(`Report saved: ${data.filename}`);
+      loadReportsAndHashes();
+    }
+
+    async function verifySha(path, expected) {
+      notify("Re-calculating SHA-256...");
+      const res = await fetch("/api/hashes/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ relative_path: path, expected_sha256: expected })
+      });
+      const data = await res.json();
+      if (data.matched) notify(`VERIFIED: ${data.filename} matches SHA-256!`);
+      else notify(`MISMATCH on ${data.filename}!`, true);
+    }
+
+    // -------------------------------------------------------------------------
+    // INITIALIZATION
+    // -------------------------------------------------------------------------
+    window.addEventListener("DOMContentLoaded", async () => {
+      initSidebarTooltips();
+      initDropzone();
+      await syncEverything();
+      await loadCaseManager();
+      await loadAiHistoryFromServer();
+      APP.bgPollTimer = setInterval(pollBackgroundJobs, 2200);
+    });
+  </script>
+</body>
+</html>
